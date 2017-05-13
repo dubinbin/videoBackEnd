@@ -1,9 +1,9 @@
 <template>
-  <div class="MovieCategoryEdit">
+  <div class="topicCategoryEdit">
   <div style="margin: 20px;"></div>
   <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
     <el-form-item label="名称">
-      <el-input v-model="categoryName"></el-input>
+      <el-input v-model="topicCategoryName"></el-input>
     </el-form-item>
 
     <el-form-item>
@@ -19,27 +19,27 @@
     data() {
       return {
           labelPosition: 'top',
-          categoryName:''
+          topicCategoryName:'',
       }
     },
     created() {
-       this.$store.dispatch('setTitlename', {name:'影片分类增加'})
+       this.$store.dispatch('setTitlename', {name:'话题类别增加'})
     },
     methods: {
       addCategory() {
-        this.$http.post('/api/movieCategoryAdd',{
-          categoryName: this.categoryName
+        this.$http.post('/api/topicCategoryAdd',{
+          topicCategoryName: this.topicCategoryName
         }).then((response) => {
           console.log(response);
         })
-        this.$router.push('/movieCategoryList')
+        this.$router.push('/topicCategory')
          this.$message({
            type: 'success',
            message: '上传成功!'
         });
       },
       resetForm(){
-        this.categoryName = ''
+        this.topicCategoryName = ''
       }
     }
   }

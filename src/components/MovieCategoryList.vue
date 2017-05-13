@@ -1,23 +1,23 @@
 <template>
   <div class="movieCategoryList">
-    <div class="carouselList">
+    <div class="movieCategoryList">
 <el-table
     :data="tableData"
     border
     style="width: 100%">
      <el-table-column
-      label="name"
-      width="150">
+      label="id"
+      width="120">
       <template scope="scope">
-        <span>{{ scope.row.name }}</span>
+        <span>{{ scope.row.id }}</span>
       </template>
     </el-table-column>
     <el-table-column
-      label="地址"
+      label="类名"
       width="180">
       <template scope="scope">
           <div slot="reference" class="name-wrapper">
-            <el-tag>{{ scope.row.url }}</el-tag>
+            <el-tag>{{ scope.row.name }}</el-tag>
           </div>
       </template>
     </el-table-column>
@@ -25,11 +25,11 @@
       <template scope="scope">
         <el-button
           size="small"
-          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          @click="mCategoryEdit(scope.row.id)">编辑</el-button>
         <el-button
           size="small"
           type="danger"
-          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          @click="mCategoryDelete(scope.row.id, index)">删除</el-button>
         </template>
         </el-table-column>
      </el-table>
@@ -41,34 +41,50 @@
 </template>
 
 <script>
+
   export default {
     data() {
       return {
-        tableData: [{
-          name: '王小虎',
-          url: 'www.baidu.com/excite'
-        }, {
-          name: '王小虎',
-          url: 'www.baidu.com/excite'
-        }]
+        tableData: []
       }
     },
+    created() {
+        this.$store.dispatch('setTitlename', {name:'视频分类'})
+        this.$http.get('/api/movieCategoryList').then((response)=>{
+          let body = response.body;
+          var data = [];
+          let _this = this;
+          for(let i=0;i<body.length;i++){
+            var obj = {};
+            obj.id = body[i].fid;
+            obj.name = body[i].name;
+            data[i] = obj;
+          }
+          _this.tableData = data;
+        })
+    },
     methods: {
-      handleEdit(index, row) {
-        console.log(index, row);
-        this.$router.push('/carouseledit');
+      mCategoryEdit(id) {
+        this.$router.push('/movieCategoryEdit?id='+ id);
       },
-      handleDelete(index, row) {
-        console.log(index, row);
-         this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+      mCategoryDelete(id, index) {
+        this.$confirm('此操作将删除该分类及其所属该分类的所有影片, 请慎重!', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
+            this.$http.post('/api/movieCategoryDel',{
+            id : id
+          }).then((response) => {
+             console.log('删除成功')
+            },(response)=>{
+              console.log(response)
+            });
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.tableData.splice(index,1)
         }).catch(() => {
           this.$message({
             type: 'info',

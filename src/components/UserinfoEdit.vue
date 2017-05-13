@@ -1,13 +1,16 @@
 <template>
-  <div class="carousel_uplaod">
+  <div class="userinfoedit">
   <div style="margin: 20px;"></div>
   <el-form :label-position="labelPosition">
    <el-form-item label="名称">
-      <el-input v-model="bannerName"></el-input>
+      <el-input v-model="userName"></el-input>
     </el-form-item> 
+    <p class="uploadPicText">原图</p>
+    <div class="orginPic">
+      <img width="200" :src="originPic">
+    </div>
     <p class="uploadPicText">上传图片</p>
     <el-upload
-      accept ='image/*'
       class="upload"
       ref="upload"
       action="/api/uploadPic"
@@ -21,9 +24,9 @@
       <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
       <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb,且一次只能上传一张</div>
     </el-upload>
-    <el-button class="addBanner" type="primary" @click="addBanner">增加轮播图</el-button>
+    <el-button class="addBanner" type="primary" @click="uploadinfo">修改完成</el-button>
   </el-form>
-	</div>
+  </div>
 </template>
 
 <script>
@@ -31,25 +34,43 @@
     data() {
       return {
         fileList: [],
-        bannerName:'',
-        imgSrc:''
+        userName:'',
+        imgSrc:'',
+        originPic:''
       };
     },
     created() {
-       this.$store.dispatch('setTitlename', {name:'轮播图上传'})
+        this.$store.dispatch('setTitlename', {name:'用户资料修改'})
+        const id = this.$route.query.id
+        this.$http.get('/api/userinfoEdit',{
+          params:{id : id}
+        }).then((response)=>{
+          let body = response.body;
+          this.userName = body[0].username;
+          this.originPic = body[0].thumb;
+        })
     },
     methods: {
       handleAvatarSuccess(res, file) {
         this.imgSrc = res;
       },
-      addBanner() {
-        this.$http.post('/api/bannerAdd',{
-         bannerName: this.bannerName,
-         bannerSrc: this.imgSrc
+      uploadinfo() {
+        const id = this.$route.query.id;
+        if(this.imgSrc ==''){
+          this.originPic === this.imgSrc;
+        }
+        this.$http.post('/api/userinfoUpload',{
+          userName: this.userName,
+          thumb: this.imgSrc,
+          id : id
         }).then((response) => {
           console.log(response);
         })
-        this.$router.push('/carousel');
+        this.$router.push('/userManage')
+         this.$message({
+           type: 'success',
+           message: '上传成功!'
+        });
       },
       submitUpload() {
         this.$refs.upload.submit();    

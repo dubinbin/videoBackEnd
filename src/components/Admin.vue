@@ -2,8 +2,9 @@
 <!-- 左边导航栏组件-->
 	<div class="adminPanel" style="height:100%">
 	<my-Header></my-Header>
+	<myCanvas></myCanvas>
 	 <el-row class="tac">
-		 <el-col :span="4" style="height:100%;width: 22.66667%;">
+		 <el-col :span="4" style="height:100%;width: 18.6667%;">
 		  <div class="ControlPanel">
 	  	  <el-col :span="24">
 		    <el-menu default-active="2" class="el-menu-vertical-demo" theme="dark">
@@ -33,6 +34,11 @@
 		          <router-link :to="{path:'foundTopicList'}"><el-menu-item index="3-1">话题列表</el-menu-item></router-link>
 		          <router-link :to="{path:'foundTopicAdd'}"><el-menu-item index="3-3">话题增加</el-menu-item></router-link>
 		        </el-menu-item-group>
+							<el-submenu index="3-3">
+          			<template slot="title">话题分类</template>
+          			 <router-link :to="{path:'topicCategory'}"><el-menu-item index="1-4-1">现有分类</el-menu-item></router-link>
+          			 <router-link :to="{path:'topicCategoryAdd'}"><el-menu-item index="1-4-2">增加分类</el-menu-item></router-link>
+               </el-submenu>
 		      </el-submenu>
 		        <router-link :to="{path:'userManage'}"><el-menu-item index="4">用户管理</el-menu-item></router-link>
 		      	<router-link :to="{path:'userinfo'}"><el-menu-item index="5">管理员密码</el-menu-item></router-link>
@@ -43,22 +49,31 @@
   		 <!-- 右边展示视图 -->
         <el-col :span="20" class="mainShow" style="width: 74.33333%;">
 		  <div class="ShowPanel">
-	       <router-view></router-view>
+				    <TitleLink></TitleLink>
+	          <router-view></router-view>
 	      </div>
 	   </el-col>
 	  </el-row>
-	  <my-Footer></my-Footer>
+<!-- 	  <my-Footer></my-Footer> -->
 	</div>
 </template>
 
 <script>
+import TitleLink from './TitleLink.vue';
+import myCanvas from  './MyCanvas.vue'
 import myHeader  from './BackHeader.vue';
-import myFooter  from './BackFooter.vue';
-
+// import myFooter  from './BackFooter.vue';
+ 
 export default {
+	data() {
+		return {
+			titleName:''
+		}
+	},
 	components:{
-	   myHeader,
-	   myFooter
+	  myHeader,
+		myCanvas,
+		TitleLink
 	}
 }	
 </script>

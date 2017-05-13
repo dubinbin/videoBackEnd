@@ -1,5 +1,5 @@
 <template>
-  <div class="found">
+  <div class="foundedit">
   <div style="margin: 20px;"></div>
   <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
     <el-form-item label="话题">
@@ -13,7 +13,7 @@
           :label="item.name"
           :value="item.tid">
         </el-option>
-  </el-select>
+      </el-select>
     </el-form-item>
 
      <el-form-item label="简介">
@@ -25,6 +25,11 @@
     </el-input>
     </el-form-item>
 
+    <div class="orginPic">
+       <p>原图</p>
+       <img width="200" :src="coverPic">
+     </div>
+
     <p class="uploadPicText">上传封面</p>
     <el-upload
       class="upload"
@@ -32,7 +37,7 @@
       action="/api/uploadEditorPic"
       name="upload"
       :on-preview="handlePreview"
-      :on-success="uploadPicCallback"
+      :on-success="uploadPicSuccess"
       :on-remove="handleRemove"
       :file-list="fileList"
       :auto-upload="false">
@@ -44,11 +49,11 @@
       <div class="editor-area">
         <el-form-item label="文章"></el-form-item>
         <!-- editor -->
-        <div id="summernote"></div>
+        <textarea id="summernote"></textareas>
       </div>
 
     <el-form-item>
-      <el-button type="primary" @click="addTopic">提交</el-button>
+      <el-button type="primary" @click="editTopic">提交</el-button>
       <el-button @click="resetForm">重置</el-button>
     </el-form-item>
   </el-form>
@@ -56,7 +61,7 @@
 </template>
 
 <script>
-import $ from 'jquery';
+import $ from 'jquery'
 import {formatDate} from '../assets/js/date';
 
   export default {
@@ -67,17 +72,31 @@ import {formatDate} from '../assets/js/date';
           topicCategory: '',
           topicContent: '',
           fileList: [],
-          content:'',
+          options:[],
           coverPic:'',
           topicId:'',
           article:''
         }
     },
     created () {
-       this.$store.dispatch('setTitlename', {name:'话题新增'})
+       this.$store.dispatch('setTitlename', {name:'话题编辑'})
        this.$http.get('/api/topicCategoryList').then((response)=>{
           let body = response.body;
           this.topicCategory = body;
+        });
+
+        let id = this.$route.query.id;
+        this.$http.get('/api/topicEdit',{
+          params:{id : id}
+         }).then((response)=>{
+          let body = response.body;
+          this.topicName = body[0].tname;
+          this.content= body[0].content;
+          this.coverPic = body[0].coverPic;
+          this.topicId = body[0].categoryId;
+          this.article = body[0].article;
+          var getArticle = this.article;
+          $('#summernote').summernote("code", getArticle); 
         })
     },
     mounted(){
@@ -126,12 +145,15 @@ import {formatDate} from '../assets/js/date';
       })
     },
     methods: {
-      addTopic() {
+      submitUpload() {
+        this.$refs.upload.submit();    
+      }, 
+      editTopic() {
+        let id = this.$route.query.id;
         let sendDate = new Date();
         let serializeDate = formatDate(sendDate, 'yyyy-MM-dd hh:mm');
         let sendArticle = $('#summernote').summernote('code');
-        var id = this.$route.query.id
-        this.$http.post('/api/topicAdd',{
+        this.$http.post('/api/topicUpload',{
           topicName: this.topicName,
           content : this.content,
           coverPic: this.coverPic,
@@ -140,16 +162,10 @@ import {formatDate} from '../assets/js/date';
           article: sendArticle,
           time :serializeDate
         }).then((response) => {
-           this.$router.push('/foundTopicList')
+         this.$router.push('/foundTopicList')
          },(response)=>{
             console.log(response)
         });
-      },
-      submitUpload() {
-        this.$refs.upload.submit();    
-      }, 
-      uploadPicCallback(res,file) {
-        this.coverPic = res;
       },
       resetForm() {
       },
@@ -158,6 +174,9 @@ import {formatDate} from '../assets/js/date';
       },
       handlePreview(file) {
         console.log(file);
+      },
+      uploadPicSuccess(res,file){
+        this.coverPic = res;
       }
     }
   }

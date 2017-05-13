@@ -27,6 +27,9 @@
          passwordRepeat: ''
       }
     },
+    created() {
+       this.$store.dispatch('setTitlename', {name:'管理员密码'})
+    },
     methods: {
       savePsw() {
         if(this.password != this.passwordRepeat){

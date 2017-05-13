@@ -1,47 +1,85 @@
 <template>
-  <div class="carousel">
+  <div class="carousel_edit">
   <div style="margin: 20px;"></div>
-  <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
-    <el-form-item label="名称(没什么作用，仅用于标记)">
-      <el-input v-model="formLabelAlign.name"></el-input>
-    </el-form-item>
-
-  <div class="originPic">
-    <p>原图</p>
-  </div>
-  <el-upload
-    class="upload-demo"
-    action="https://jsonplaceholder.typicode.com/posts/"
-    :on-preview="handlePreview"
-    :on-remove="handleRemove"
-    :file-list="fileList2"
-    list-type="picture">
-    <el-button size="small" type="primary">点击上传</el-button>
-    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-  </el-upload>
-
-    <el-form-item>
-      <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
-      <el-button @click="resetForm('ruleForm2')">重置</el-button>
-    </el-form-item>
+  <el-form :label-position="labelPosition">
+   <el-form-item label="名称">
+      <el-input v-model="bannerName"></el-input>
+    </el-form-item> 
+    <p class="uploadPicText">原图</p>
+    <div class="orginPic">
+      <img width="200" :src="originPic">
+    </div>
+    <p class="uploadPicText">上传图片</p>
+    <el-upload
+      class="upload"
+      ref="upload"
+      action="/api/uploadPic"
+      name="upload"
+      :on-preview="handlePreview"
+      :on-success="handleAvatarSuccess"
+      :on-remove="handleRemove"
+      :file-list="fileList"
+      :auto-upload="false">
+      <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+      <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload() ,deletePic()">上传到服务器</el-button>
+      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb,且一次只能上传一张</div>
+    </el-upload>
+    <el-button class="addBanner" type="primary" @click="EditBanner">增加轮播图</el-button>
   </el-form>
-	</div>
+  </div>
 </template>
 
 <script>
   export default {
     data() {
       return {
-          labelPosition: 'top',
-          formLabelAlign: {
-          name: '',
-          region: '',
-          type: '',
-          fileList2: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}]
-        }
-      }
+        fileList: [],
+        bannerName:'',
+        imgSrc:'',
+        originPic:''
+      };
+    },
+    created() {
+        this.$store.dispatch('setTitlename', {name:'轮播图编辑'})
+        const id = this.$route.query.id
+        this.$http.get('/api/bannerEdit',{
+          params:{id : id}
+        }).then((response)=>{
+          let body = response.body;
+          this.bannerName = body[0].title;
+          this.originPic = body[0].url;
+        })
     },
     methods: {
+      deletePic() {
+        this.$http.post('/api/deletePic',{
+         imgSrc: this.originPic
+        }).then((response) => {
+           console.log('成功')
+         },(response)=>{
+            console.log(response)
+        });  
+      },
+      handleAvatarSuccess(res, file) {
+        this.imgSrc = res;
+      },
+      EditBanner() {
+        const id = this.$route.query.id;
+        if(this.imgSrc ==''){
+          this.originPic === this.imgSrc;
+        }
+        this.$http.post('/api/bannerUpload',{
+          bannerName: this.bannerName,
+          bannerSrc: this.imgSrc,
+          id : id
+        }).then((response) => {
+          console.log(response);
+        })
+        this.$router.push('/carousel')
+      },
+      submitUpload() {
+        this.$refs.upload.submit();    
+      }, 
       handleRemove(file, fileList) {
         console.log(file, fileList);
       },
@@ -53,6 +91,13 @@
 </script>
 
 <style>
+.uploadPicText{
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.addBanner{
+  margin-top: 20px!important;
+}
 .el-upload{
   margin-left: 0;
   margin-bottom: 31px;

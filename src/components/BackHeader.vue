@@ -1,14 +1,14 @@
 <template>
   <div class="header">
-	   <h1 class="systemName">管理系统</h1>
+	   <h1 class="systemName">后台管理系统</h1>
      <div class="userNow">
        <el-dropdown :hide-on-click="false">
       <span class="el-dropdown-link">
-        当前用户 : admin<i class="el-icon-caret-bottom el-icon--right"></i>
+       {{time}}好 : {{user.name}}<i class="el-icon-caret-bottom el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item><router-link :to="{path:'userinfo'}">个人资料</router-link></el-dropdown-item>
-        <el-dropdown-item @click="logout">登出</el-dropdown-item>
+        <el-dropdown-item><router-link :to="{path:'userinfo'}" tag="span">个人资料</router-link></el-dropdown-item>
+        <el-dropdown-item><span @click="logout">登出</span></el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
      </div>
@@ -16,12 +16,43 @@
 </template>
 
 <script>
+import {mapState}  from 'vuex'
+
   export default {
     methods: {
       logout() {
-       console.log('hello');
-      }
-    }
+        this.$http.post('/api/logout').then((response) => {
+            this.$store.commit('SET_USER', {name: ''})
+            this.$router.push('/login')
+            this.$message({
+                message: '已登出',
+                type: 'success'
+            });
+          },(response)=>{
+            console.log(response)
+           }
+          )
+        }
+      },
+      computed: mapState({
+        time(){
+          let hours = new Date().getHours()
+          if (hours > 5 && hours < 12) {
+            return '早上'
+          } else if (hours > 11 && hours < 19) {
+            return '下午'
+          } else {
+            return '晚上'
+          }
+        },
+        user(){
+          var getUserName = window.localStorage.getItem('userName');
+          if(this.$store.state.user.name ==''){
+             this.$store.commit('GET_USER', {name: getUserName})
+          }
+          return this.$store.state.user;
+        }
+      })
   }
 </script>
 

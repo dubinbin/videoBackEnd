@@ -21,15 +21,35 @@
           </div>
       </template>
     </el-table-column>
+    <el-table-column
+      label="用户状态" 
+      width="100">
+      <template scope="scope">
+          <div slot="reference" class="name-wrapper">
+            <el-tag>{{ scope.row.enable }}</el-tag>
+          </div>
+      </template>
+    </el-table-column>
     <el-table-column label="操作">
       <template scope="scope">
         <el-button
           size="small"
-          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          @click="userEdit(scope.row.id)">编辑</el-button>
+        <el-button
+          size="small"
+          type="warning"
+          v-if="scope.row.enable =='正常' && scope.row.level!='超级管理员' "
+          @click="userBan(scope.row.id, index)">封禁</el-button>
+        <el-button
+          size="small"
+          type="info"
+          v-if="scope.row.enable =='封禁' && scope.row.level!='超级管理员'"
+          @click="userleaveBan(scope.row.id, index)">解禁</el-button>
         <el-button
           size="small"
           type="danger"
-          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          v-if="scope.row.level!='超级管理员'"
+          @click="userDelete(scope.row.id, index)">删除</el-button>
         </template>
         </el-table-column>
      </el-table>
@@ -48,6 +68,8 @@
       }
     },
     created() {
+        this.$store.dispatch('setTitlename', {name:'用户管理'})
+
         // 取到后端数据并渲染到表格中
         this.$http.get('/api/userinfo').then((response)=>{
           let body = response.body;
@@ -55,35 +77,98 @@
           let _this = this;
           for(let i=0;i<body.data.length;i++){
             var obj = {};
+            obj.id = body.data[i].id;
             obj.name = body.data[i].username;
             obj.level = body.data[i].level;
+            obj.enable = body.data[i].enable;
             data[i] = obj;
             if(body.data[i].level =='0'){
               obj.level = '超级管理员';
-            }
-            else{
+            }else{
               obj.level = '用户';
+            }
+
+            if(body.data[i].enable =='1'){
+              obj.enable = '正常'
+            }else{
+              obj.enable = '封禁'
             }
           }
           _this.tableData = data;
         })
     },
     methods: {
-      handleEdit(index, row) {
-        console.log(index, row);
-        this.$router.push('/carouseledit');
+      userEdit(id) {
+        this.$router.push('/userinfoEdit?id='+ id);
       },
-      handleDelete(index, row) {
-        console.log(index, row);
-         this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+      userBan(id,index){
+         this.$confirm('此操作将封禁该用户, 请慎重!', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            this.$http.post('/api/userBan',{
+            id : id
+          }).then((response) => {
+             console.log('删除成功')
+            },(response)=>{
+              console.log(response)
+            });
+            this.$message({
+              type: 'success',
+              message: '已封禁当前用户!'
+            });
+             // window.location.reload();
+        }).catch(() => {
           this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
+            type: 'info',
+            message: '已取消封禁'
+          });          
+        });
+       },
+      userleaveBan(id){
+        this.$confirm('此操作将解封该用户', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            this.$http.post('/api/userleaveBan',{
+            id : id
+          }).then((response) => {
+             console.log('删除成功')
+            },(response)=>{
+              console.log(response)
+            });
+            this.$message({
+              type: 'success',
+              message: '已解封当前用户!'
+            });
+             // window.location.reload();
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消解封'
+          });          
+        });
+      },
+      userDelete(id, index) {
+        this.$confirm('此操作将永久删除该用户, 请慎重!', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            this.$http.post('/api/userDelete',{
+            id : id
+          }).then((response) => {
+             console.log('删除成功')
+            },(response)=>{
+              console.log(response)
+            });
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.tableData.splice(index,1)
         }).catch(() => {
           this.$message({
             type: 'info',

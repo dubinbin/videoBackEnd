@@ -7,14 +7,15 @@
     </el-form-item>
 
     <el-form-item>
-      <el-button type="primary" @click="addCategory">提交</el-button>
+      <el-button type="primary" @click="uploadCategory">提交</el-button>
       <el-button @click="resetForm()">重置</el-button>
     </el-form-item>
   </el-form>
-  </div>
+	</div>
 </template>
 
 <script>
+
   export default {
     data() {
       return {
@@ -23,12 +24,21 @@
       }
     },
     created() {
-       this.$store.dispatch('setTitlename', {name:'影片分类增加'})
-    },
+        this.$store.dispatch('setTitlename', {name:'视频分类编辑'})
+        const id = this.$route.query.id
+        this.$http.get('/api/movieCategoryEdit',{
+          params:{id : id}
+        }).then((response)=>{
+          let body = response.body;
+          this.categoryName = body[0].name;
+        })
+     },  
     methods: {
-      addCategory() {
-        this.$http.post('/api/movieCategoryAdd',{
-          categoryName: this.categoryName
+      uploadCategory() {
+        const id = this.$route.query.id;
+        this.$http.post('/api/movieCategoryUpload',{
+          categoryName: this.categoryName,
+          id : id
         }).then((response) => {
           console.log(response);
         })

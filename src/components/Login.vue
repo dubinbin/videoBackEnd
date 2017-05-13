@@ -1,10 +1,11 @@
 <template>
 <el-form ref="form" :model="form" label-width="80px" action="api/info">
+<myCanvas></myCanvas>
 <el-row>
   <el-col :span="8"><div class="grid-content"></div></el-col>
   <el-col :span="8">
      <div class="grid-content login">
-        <p class="loginTitle">登陆| Login</p>
+        <p class="loginTitle">登陆  | Login</p>
   		<el-input type="text" v-model="userName" placeholder="请输入你的用户名"></el-input>
   		<el-input type="password" v-model="password" placeholder="请输入你的密码"></el-input>
   		 <el-button type="info" @click="login">登陆</el-button>
@@ -16,6 +17,8 @@
 </template>
 
 <script>
+import myCanvas from  './MyCanvas.vue'
+
 	export default {
 	  data() {
 	    return {
@@ -39,15 +42,31 @@
       loginResponse(response){
           let body = response.body;
           if (body.state === '登陆成功') {
-              this.$router.push('/admin')
-          }
-          else if(body.state === '密码错误'){
-              alert('密码错误喽')
-          }
-          else{
-            alert('h')
+              this.$message({
+                message: '登陆成功',type: 'success'
+            });
+            this.$store.dispatch('setUsername', {name: this.userName});
+            this.$router.push('/mainboard');
+          }else if(body.state === '密码错误'){
+            this.$message({
+              message: '密码错误',
+              type: 'warning'
+            });
+          }else if(body.state==='账号不存在'){
+            this.$message({
+              message: '账号不存在',
+              type: 'warning'
+            });
+          }else{
+             this.$message({
+              message: '密码错误',
+              type: 'warning'
+            });
           }
          }
+      },
+      components:{
+        myCanvas
       }
     }
 </script>
