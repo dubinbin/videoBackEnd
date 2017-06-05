@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
   export default {
     data() {
@@ -50,7 +51,7 @@
     },
     created () {
         this.$store.dispatch('setTitlename', {name:'轮播图'})
-        this.$http.get('/api/banner').then((response)=>{
+        this.$http.get(''+LOCALHOST_URL+'/api/banner').then((response)=>{
           if(response.body ==='未登陆'){
              this.$router.push('/login')
           }else{

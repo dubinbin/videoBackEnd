@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
   export default {
     data() {
@@ -50,7 +51,7 @@
     },
     created () {
         this.$store.dispatch('setTitlename', {name:'话题分类'})
-        this.$http.get('/api/topicCategoryList').then((response)=>{
+        this.$http.get(''+LOCALHOST_URL+'/api/topicCategoryList').then((response)=>{
           let body = response.body;
           var data = [];
           let _this = this;
@@ -73,7 +74,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/topicCategoryDel',{
+            this.$http.post(''+LOCALHOST_URL+'/api/topicCategoryDel',{
             id : id
           }).then((response) => {
              console.log('删除成功')

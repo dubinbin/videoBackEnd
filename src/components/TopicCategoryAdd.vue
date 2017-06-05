@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
   export default {
     data() {
       return {
@@ -27,7 +28,7 @@
     },
     methods: {
       addCategory() {
-        this.$http.post('/api/topicCategoryAdd',{
+        this.$http.post(''+LOCALHOST_URL+'/api/topicCategoryAdd',{
           topicCategoryName: this.topicCategoryName
         }).then((response) => {
           console.log(response);

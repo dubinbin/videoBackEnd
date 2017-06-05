@@ -18,6 +18,7 @@
 
 <script>
 import myCanvas from  './MyCanvas.vue'
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
 	export default {
 	  data() {
@@ -26,10 +27,13 @@ import myCanvas from  './MyCanvas.vue'
 	      password: ''
 	    }
 	  },
+   created () {
+      alert('测试账号test,密码1234,求各位老铁不要搞暴力写入测试～')
+   },
    methods:{
       login() {
         this.userName = this.userName.trim()
-        this.$http.post('/api/login',{
+        this.$http.post(''+LOCALHOST_URL+'/api/login',{
           userName: this.userName,
           password: this.password
         }).then((response) => {
@@ -41,28 +45,24 @@ import myCanvas from  './MyCanvas.vue'
       },
       loginResponse(response){
           let body = response.body;
-          if (body.state === '登陆成功') {
-              this.$message({
-                message: '登陆成功',type: 'success'
-            });
-            this.$store.dispatch('setUsername', {name: this.userName});
-            this.$router.push('/mainboard');
-          }else if(body.state === '密码错误'){
-            this.$message({
-              message: '密码错误',
-              type: 'warning'
-            });
-          }else if(body.state==='账号不存在'){
-            this.$message({
-              message: '账号不存在',
-              type: 'warning'
-            });
-          }else{
+          if(body.state === '密码错误'){
              this.$message({
               message: '密码错误',
               type: 'warning'
             });
-          }
+          }else if(body.state==='账号不存在'){
+              this.$message({
+              message: '账号不存在',
+              type: 'warning'
+            });
+          }else{
+            this.$message({
+                message: '登陆成功',type: 'success'
+            });
+           let userid = body[0].id;
+           this.$store.dispatch('setUsername', {name: this.userName,id: userid});
+           this.$router.push('/mainboard');
+          }       
          }
       },
       components:{

@@ -11,7 +11,7 @@
       class="upload"
       ref="upload"
       action="/api/uploadPic"
-      name="upload"
+      name="banner"
       :on-preview="handlePreview"
       :on-success="handleAvatarSuccess"
       :on-remove="handleRemove"
@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
+
   export default {
     data() {
       return {
@@ -43,7 +45,7 @@
         this.imgSrc = res;
       },
       addBanner() {
-        this.$http.post('/api/bannerAdd',{
+        this.$http.post(''+LOCALHOST_URL+'/api/bannerAdd',{
          bannerName: this.bannerName,
          bannerSrc: this.imgSrc
         }).then((response) => {

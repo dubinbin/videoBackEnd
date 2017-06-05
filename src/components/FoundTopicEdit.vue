@@ -64,6 +64,7 @@
 <script>
 import $ from 'jquery'
 import {formatDate} from '../assets/js/date';
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
   export default {
     data() {
@@ -81,19 +82,19 @@ import {formatDate} from '../assets/js/date';
     },
     created () {
        this.$store.dispatch('setTitlename', {name:'话题编辑'})
-       this.$http.get('/api/topicCategoryList').then((response)=>{
+       this.$http.get(''+LOCALHOST_URL+'/api/topicCategoryList').then((response)=>{
           let body = response.body;
           this.topicCategory = body;
         });
 
         let id = this.$route.query.id;
-        this.$http.get('/api/topicEdit',{
+        this.$http.get(''+LOCALHOST_URL+'/api/topicEdit',{
           params:{id : id}
          }).then((response)=>{
           let body = response.body;
           this.topicName = body[0].tname;
           this.content= body[0].content;
-          this.coverPic = body[0].coverPic;
+          this.coverPic =LOCALHOST_URL+ body[0].coverPic.substring(1);
           this.topicId = body[0].categoryId;
           this.article = body[0].article;
           var getArticle = this.article;
@@ -117,30 +118,20 @@ import {formatDate} from '../assets/js/date';
           onImageUpload:function(files){     
             var Picdata = new FormData();
             var imgUrl = null;
-            var IMAGE_PATH = 'http://localhost:9000/';
             Picdata.append('upload',files[0]);
-            //jquery ajax调用方式
             $.ajax({
-                url: '/api/uploadEditorPic',
+                url: ''+LOCALHOST_URL+'/api/uploadEditorPic',
                 type: 'POST',
                 cache: false,
                 data: Picdata,
                 processData: false,
                 contentType: false
               }).success(function(res) {
-                  let changeUrl = IMAGE_PATH + res.substring(2);
-                   $('#summernote').summernote("insertImage", changeUrl);  
+                  var imgUrl = LOCALHOST_URL + res.substring(1);
+                   $('#summernote').summernote("insertImage", imgUrl);  
               }).fail(function(res) {
                   console.log('error')
               });
-
-            //vue resource ajax 神他妈参数一直报错，先放弃
-            // this.$http.post('/api/uploadPic', Picdata).then((response) => {
-            //   console.log(response)
-            // //  $('#summernote').summernote('editor.insertImage',response)
-            // },(response)=>{
-            //   console.log(response)
-            // });
           }
         }
       })

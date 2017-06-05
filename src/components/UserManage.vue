@@ -39,12 +39,12 @@
           size="small"
           type="warning"
           v-if="scope.row.enable =='正常' && scope.row.level!='超级管理员' "
-          @click="userBan(scope.row.id, index)">封禁</el-button>
+          @click="userBan(scope.row.id, scope.row)">封禁</el-button>
         <el-button
           size="small"
           type="info"
           v-if="scope.row.enable =='封禁' && scope.row.level!='超级管理员'"
-          @click="userleaveBan(scope.row.id, index)">解禁</el-button>
+          @click="userleaveBan(scope.row.id, scope.row)">解禁</el-button>
         <el-button
           size="small"
           type="danger"
@@ -61,6 +61,8 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
+
   export default {
     data() {
       return {
@@ -71,7 +73,7 @@
         this.$store.dispatch('setTitlename', {name:'用户管理'})
 
         // 取到后端数据并渲染到表格中
-        this.$http.get('/api/userinfo').then((response)=>{
+        this.$http.get(''+LOCALHOST_URL+'/api/userinfo').then((response)=>{
           let body = response.body;
           var data = [];
           let _this = this;
@@ -107,6 +109,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            index.enable = '封禁'
             this.$http.post('/api/userBan',{
             id : id
           }).then((response) => {
@@ -126,12 +129,13 @@
           });          
         });
        },
-      userleaveBan(id){
+      userleaveBan(id,index){
         this.$confirm('此操作将解封该用户', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+           index.enable = '正常'
             this.$http.post('/api/userleaveBan',{
             id : id
           }).then((response) => {

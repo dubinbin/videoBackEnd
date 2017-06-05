@@ -45,12 +45,12 @@
           size="small"
           type="warning"
           v-if="scope.row.enable =='1'"
-          @click="topicBan(scope.row.id, index)">小黑屋</el-button>
+          @click="topicBan(scope.row.id, scope.row)">小黑屋</el-button>
           <el-button
           size="small"
           type="info"
           v-if="scope.row.enable =='0'"
-          @click="topicUnban(scope.row.id, index)">解封</el-button>
+          @click="topicUnban(scope.row.id, scope.row)">解封</el-button>
         <el-button
           size="small"
           type="danger"
@@ -74,18 +74,19 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
   export default {
     data() {
       return {
         tableData: [],
         pageTotal: null,
-        currentPage: 1
+        currentPage: '1'
       }
     },
     created() {
         this.$store.dispatch('setTitlename', {name:'话题列表'})
-        this.$http.get('/api/topiclist').then((response)=>{
+        this.$http.get(''+LOCALHOST_URL+'/api/topiclist').then((response)=>{
           let body = response.body;
           var data = [];
           var getTenData = 10;
@@ -106,7 +107,7 @@
     methods: {
        currentPageNum(val) {
         var getpageNum = parseInt(val - 1);
-        this.$http.post('/api/topiclistPage',{
+        this.$http.post(''+LOCALHOST_URL+'/api/topiclistPage',{
           pageNum: getpageNum
         }).then((response)=>{
           let body = response.body;
@@ -132,17 +133,16 @@
           console.log(response)
         });
        },
-      topicBan(id) {
+      topicBan(id,index) {
         this.$confirm('此操作将封禁该话题', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/topicBan',{
+            this.$http.post(''+LOCALHOST_URL+'/api/topicBan',{
             id : id
           }).then((response) => {
-            setTimeout(function(){
-              window.location.reload()},1000);
+             index.enbale ='0'
             },(response)=>{
               console.log(response)
             });
@@ -157,17 +157,16 @@
           });          
         });
       },
-      topicUnban(id) {
+      topicUnban(id,index) {
         this.$confirm('此操作将解封该话题', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/topicLeaveBan',{
+            this.$http.post(''+LOCALHOST_URL+'/api/topicLeaveBan',{
             id : id
           }).then((response) => {
-            setTimeout(function(){
-              window.location.reload()},1000);
+            index.enbale ='1'
             },(response)=>{
               console.log(response)
             });

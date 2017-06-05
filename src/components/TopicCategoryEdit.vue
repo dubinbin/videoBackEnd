@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
+
   export default {
     data() {
       return {
@@ -25,7 +27,7 @@
     created() {
         this.$store.dispatch('setTitlename', {name:'话题分类编辑'})
         const id = this.$route.query.id
-        this.$http.get('/api/topicCategoryEdit',{
+        this.$http.get(''+LOCALHOST_URL+'/api/topicCategoryEdit',{
           params:{id : id}
         }).then((response)=>{
           let body = response.body;
@@ -35,7 +37,7 @@
     methods: {
       uploadCategory() {
         const id = this.$route.query.id;
-        this.$http.post('/api/movieCategoryUpload',{
+        this.$http.post(''+LOCALHOST_URL+'/api/movieCategoryUpload',{
           topicCategoryName: this.topicCategoryName,
           id : id
         }).then((response) => {

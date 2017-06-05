@@ -59,6 +59,7 @@
 <script>
 import $ from 'jquery';
 import {formatDate} from '../assets/js/date';
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
   export default {
     data() {
@@ -76,7 +77,7 @@ import {formatDate} from '../assets/js/date';
     },
     created () {
        this.$store.dispatch('setTitlename', {name:'话题新增'})
-       this.$http.get('/api/topicCategoryList').then((response)=>{
+       this.$http.get(''+LOCALHOST_URL+'/api/topicCategoryList').then((response)=>{
           let body = response.body;
           this.topicCategory = body;
         })
@@ -98,18 +99,17 @@ import {formatDate} from '../assets/js/date';
           onImageUpload:function(files){     
             var Picdata = new FormData();
             var imgUrl = null;
-            var IMAGE_PATH = 'http://localhost:9000/';
             Picdata.append('upload',files[0]);
 
             $.ajax({
-                url: '/api/uploadEditorPic',
+                url: ''+LOCALHOST_URL+'/api/uploadEditorPic',
                 type: 'POST',
                 cache: false,
                 data: Picdata,
                 processData: false,
                 contentType: false
               }).success(function(res) {
-                  let changeUrl = IMAGE_PATH + res.substring(2);
+                  let changeUrl = LOCALHOST_URL + res.substring(2);
                  $('#summernote').summernote("insertImage", changeUrl);  
               }).fail(function(res) {
                   console.log('error')
@@ -124,7 +124,7 @@ import {formatDate} from '../assets/js/date';
         let serializeDate = formatDate(sendDate, 'yyyy-MM-dd hh:mm');
         let sendArticle = $('#summernote').summernote('code');
         var id = this.$route.query.id
-        this.$http.post('/api/topicAdd',{
+        this.$http.post(''+LOCALHOST_URL+'/api/topicAdd',{
           topicName: this.topicName,
           content : this.content,
           coverPic: this.coverPic,

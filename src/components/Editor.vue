@@ -4,6 +4,7 @@
 
 <script>
 import $ from 'jquery';
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
 export default {
     mounted(){
@@ -23,18 +24,17 @@ export default {
         onImageUpload:function(files){     
         var Picdata = new FormData();
         var imgUrl = null;
-        var IMAGE_PATH = 'http://localhost:9000/';
         Picdata.append('upload',files[0]);
 
         $.ajax({
-            url: '/api/uploadEditorPic',
+            url: ''+LOCALHOST_URL+'/api/uploadEditorPic',
             type: 'POST',
             cache: false,
             data: Picdata,
             processData: false,
             contentType: false
             }).success(function(res) {
-                let changeUrl = IMAGE_PATH + res.substring(2);
+                let changeUrl = LOCALHOST_URL + res.substring(2);
                 $('#summernote').summernote("insertImage", changeUrl);  
             }).fail(function(res) {
                 console.log('error')

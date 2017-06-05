@@ -26,11 +26,12 @@ import TopicCategoryEdit  from '../components/TopicCategoryEdit.vue'
 import TopicCategory      from '../components/TopicCategory.vue'
 import TopicCommentlist   from '../components/TopicCommentlist.vue'
 import MovieCommentlist   from '../components/MovieCommentlist.vue'
+import FeedBack           from '../components/FeedBack.vue'
 
 export default new Router({
   mode: 'history',
   routes: [
-    {path: '/login',component: Login },
+    {path: '/',component: Login },
     {
       name:'admin',
       path: '/admin',
@@ -59,7 +60,8 @@ export default new Router({
         {path: '/topicCategoryAdd',component:TopicCategoryAdd,name:'TopCategoryAdd'},
         {path: '/topicCategoryEdit',component:TopicCategoryEdit,name:'TopicCategoryEdit'},
         {path: '/movieCommentlist',component:MovieCommentlist,name:'MovieCommentlist'},
-        {path: '/topicCommentlist',component:TopicCommentlist,name:'TopicCommentlist'} 
+        {path: '/topicCommentlist',component:TopicCommentlist,name:'TopicCommentlist'}, 
+        {path: '/FeedBack',component:FeedBack ,name:'FeedBack'}
       ]
     }
   ]

@@ -1,7 +1,7 @@
 <template>
     <div class="userinfo" style="width:60%">
     <div style="margin: 20px;"></div>
-    <el-form :label-position="labelPosition" label-width="80px" :model="setPsw" ref="setPsw">
+    <el-form :label-position="labelPosition" label-width="80px" ref="setPsw">
       <el-form-item label="密码">
         <el-input v-model="password" type="password"></el-input>
       </el-form-item>
@@ -18,17 +18,19 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
+
   export default {
     data() {
       return {
         labelPosition: 'top',
          password: '',
-         userName:'admin',
          passwordRepeat: ''
       }
     },
     created() {
-       this.$store.dispatch('setTitlename', {name:'管理员密码'})
+       this.$store.dispatch('setTitlename', {name:'修改密码'})
     },
     methods: {
       savePsw() {
@@ -36,9 +38,9 @@
           alert('唔吼')
         }
         else{
-          this.$http.post('/api/setPsw',{
+          this.$http.post(''+LOCALHOST_URL+'/api/setPsw',{
+           id :this.$store.state.user.id,
            password: this.passwordRepeat,
-           userName: this.userName,
            repeatPsw: this.password
           }).then((response) => {
             this.setPswResponse(response)
@@ -49,10 +51,18 @@
          }
        },
       setPswResponse(response){
-        console.log(response)
           let body = response.body;
           if (body.state === '修改成功') {
-              this.$router.push('/admin')
+            this.$message({
+              type: 'success',
+              message: '修改成功!请重新登录'
+            });
+            this.$router.push('/login');
+          }else{
+             this.$message({
+              message: '修改失败',
+              type: 'warning'
+            });
           }
       },
       resetForm() {

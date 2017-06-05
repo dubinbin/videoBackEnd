@@ -30,6 +30,8 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
+
   export default {
     data() {
       return {
@@ -42,12 +44,12 @@
     created() {
         this.$store.dispatch('setTitlename', {name:'用户资料修改'})
         const id = this.$route.query.id
-        this.$http.get('/api/userinfoEdit',{
+        this.$http.get(''+LOCALHOST_URL+'/api/userinfoEdit',{
           params:{id : id}
         }).then((response)=>{
           let body = response.body;
           this.userName = body[0].username;
-          this.originPic = body[0].thumb;
+          this.originPic = LOCALHOST_URL + body[0].thumb.substring(1);
         })
     },
     methods: {
@@ -59,7 +61,7 @@
         if(this.imgSrc ==''){
           this.originPic === this.imgSrc;
         }
-        this.$http.post('/api/userinfoUpload',{
+        this.$http.post(''+LOCALHOST_URL+'/api/userinfoUpload',{
           userName: this.userName,
           thumb: this.imgSrc,
           id : id

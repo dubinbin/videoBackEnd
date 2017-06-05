@@ -54,12 +54,12 @@
           size="small"
           type="warning"
           v-if="scope.row.enable =='是'"
-          @click="banMovie(scope.row.id, index)">小黑屋</el-button>
+          @click="banMovie(scope.row.id,scope.row)">小黑屋</el-button>
           <el-button
           size="small"
           type="info"
           v-if="scope.row.enable =='否'"
-          @click="unBanMovie(scope.row.id, index)">解封</el-button>
+          @click="unBanMovie(scope.row.id,scope.row)">解封</el-button>
         <el-button
           size="small"
           type="danger"
@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 import TitleLink from './TitleLink.vue'
 
   export default {
@@ -92,7 +93,7 @@ import TitleLink from './TitleLink.vue'
     },
     created () {
         this.$store.dispatch('setTitlename', {name:'视频管理'})
-        this.$http.get('/api/movielist').then((response)=>{
+        this.$http.get(''+LOCALHOST_URL+'/api/movielist').then((response)=>{
           let body = response.body;
           var data = [];
           var getTenData = 10;
@@ -123,7 +124,7 @@ import TitleLink from './TitleLink.vue'
        //分页器触发方法
       currentPageNum(val) {
         var getpageNum = parseInt(val - 1);
-        this.$http.post('/api/movielistPage',{
+        this.$http.post(''+LOCALHOST_URL+'/api/movielistPage',{
           pageNum: getpageNum
         }).then((response)=>{
           let body = response.body;
@@ -155,25 +156,23 @@ import TitleLink from './TitleLink.vue'
       editMovie(id) {
         this.$router.push('/movieedit?id='+ id);
       },
-      unBanMovie(id) {
+      unBanMovie(id,index) {
         this.$confirm('此操作将解封该影片', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/unBanMovie',{
+            this.$http.post(''+LOCALHOST_URL+'/api/unBanMovie',{
             id : id
           }).then((response) => {
-            setTimeout(function(){
-              window.location.reload()},1000);
-            },(response)=>{
-              console.log(response)
-            });
+            index.enable ='是';
             this.$message({
               type: 'success',
               message: '已解封当前影片!'
             });
-             // window.location.reload();
+            },(response)=>{
+              console.log(response)
+            });
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -181,17 +180,16 @@ import TitleLink from './TitleLink.vue'
           });          
         });
       },
-      banMovie(id) {
+      banMovie(id,index) {
         this.$confirm('此操作将封禁该用影片', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/movieBan',{
+            this.$http.post(''+LOCALHOST_URL+'/api/movieBan',{
             id : id
           }).then((response) => {
-            setTimeout(function(){
-              window.location.reload()},1000);
+            index.enable = '否'
             },(response)=>{
               console.log(response)
             });
@@ -212,16 +210,16 @@ import TitleLink from './TitleLink.vue'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/movieDelete',{
+            this.$http.post(''+LOCALHOST_URL+'/api/movieDelete',{
             id : id
           }).then((response) => {
-             this.$http.post('/api/deletePic',{
+             this.$http.post(''+LOCALHOST_URL+'/api/deletePic',{
              imgSrc: row.PicUrl
              }).then((response)=>{
               console.log('删除成功')
              })
              
-             this.$http.post('/api/deleteVideo',{
+             this.$http.post(''+LOCALHOST_URL+'/api/deleteVideo',{
              videoSrc: row.movieUrl
              }).then((response)=>{
               console.log('删除成功')
@@ -233,7 +231,7 @@ import TitleLink from './TitleLink.vue'
               type: 'success',
               message: '删除成功!'
             });
-            this.tableData.splice(index,1)
+            this.tableData.splice(index,1);
         }).catch(() => {
           this.$message({
             type: 'info',

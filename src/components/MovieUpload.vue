@@ -47,8 +47,8 @@
       accept ='image/jpg'
       class="upload"
       ref="upload"
-      action="/api/uploadPic"
-      name="upload"
+      action="/api/uploadMoviePic"
+      name="movie"
       :on-success="uploadPicSuccess"
       :on-remove="handleRemove"
       :file-list="fileList"
@@ -84,6 +84,7 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
   export default {
     data() {
@@ -105,7 +106,7 @@
     },
     created (){
       this.$store.dispatch('setTitlename', {name:'视频上传'})
-      this.$http.get('/api/movieCategoryList').then((response)=>{
+      this.$http.get(''+LOCALHOST_URL+'/api/movieCategoryList').then((response)=>{
           let body = response.body;
           this.movieCategory = body;
         })
@@ -134,7 +135,7 @@
       },
       //提交影片
       moiveAdd(){
-        this.$http.post('/api/movieAdd',{
+        this.$http.post(''+LOCALHOST_URL+'/api/movieAdd',{
           movieName: this.Mname,
           PicSrc : this.picSrc,
           showTime: this.showDate,

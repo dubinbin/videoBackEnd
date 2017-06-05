@@ -1,3 +1,4 @@
+//存放后端管理api以及通用／上传api
 const express = require('express')
 const router = express.Router()
 const fs = require('fs')
@@ -6,7 +7,7 @@ const bodyParser = require('body-parser')
 const path = require('path')
 var upload = multer({ dest: 'upload' })
 const mysql = require('mysql')
-var crypto=require('crypto')
+var crypto = require('crypto')
 
 //mysql连接信息配置
 const connection = mysql.createConnection({
@@ -51,8 +52,36 @@ var storage = multer.diskStorage({
 //初始化multer插件，使用stroage进行转存
 var upload = multer({ storage: storage})
 
+//上传影片封面图API   公共类api
+router.post('/api/uploadMoviePic', upload.single('movie'), function(req, res){
+    var file = req.file;
+    var tmp_path = file.path;
+    var target_path = './upload/moviePic/' + file.filename+ '.jpg';
+    fs.rename(tmp_path,target_path,function(err){
+        if(err) throw err;
+        fs.unlink(tmp_path,function(){
+            if(err) throw err;
+            res.send(target_path)
+        })
+    })
+});
+
+//上传用户头像API    前端
+router.post('/api/uploadUserPic', upload.single('user'), function(req, res){
+    var file = req.file;
+    var tmp_path = file.path;
+    var target_path = './upload/user/' + file.filename+ '.jpg';
+    fs.rename(tmp_path,target_path,function(err){
+        if(err) throw err;
+        fs.unlink(tmp_path,function(){
+            if(err) throw err;
+            res.send(target_path)
+        })
+    })
+});
+
 //上传轮播图API   公共类api
-router.post('/api/uploadPic', upload.single('upload'), function(req, res){
+router.post('/api/uploadPic', upload.single('banner'), function(req, res){
     var file = req.file;
     var tmp_path = file.path;
     var target_path = './upload/banner/' + file.filename+ '.jpg';
@@ -72,12 +101,31 @@ router.post('/api/uploadEditorPic', upload.single('upload'), function(req, res){
     fs.rename(tmp_path,target_path,function(err){
         if(err) throw err;
         fs.unlink(tmp_path,function(){
-            if(err) throw err;
-            res.send(target_path)
+          res.json(target_path)
         })
     })
 });
 
+//设置头像  前端
+router.post('/api/setUserPic',function(req,res){
+    let src = req.body.PicSrc;
+    let id  = req.body.uid;
+    connection.query('update user set thumb = "' + src + '"  WHERE id ="' + id + '"',function(err, doc){
+        if(err){
+         console.log(err);
+        } else{
+         res.send('success')
+        }
+    })
+})
+
+//取消头像上传  //逻辑：删除反馈的url地址
+router.post('/api/cancelUpload',function(req,res){
+    let src = req.body.PicSrc;
+    fs.unlink(src,function(){
+        res.send('success')
+    })    
+})
 
 //上传视频api 
 router.post('/api/addVideo', upload.single('video'), function(req, res){
@@ -166,10 +214,7 @@ router.post('/api/deleteVideo', function(req, res){
     }) 
 });
 
-
-
-//取到电影列表API
-router.post('/api/movielist', checkLogin);
+//取到电影列表API(分页)
 router.post('/api/movielistPage',function(req, res){
     var getpageNum = req.body.pageNum;
     var startPage = parseInt(getpageNum * 10);
@@ -186,7 +231,7 @@ router.post('/api/movielistPage',function(req, res){
     })
 })
 
-//取到电影列表API(分页)
+//取到电影列表API
 router.get('/api/movielist',function(req, res){
     connection.query('SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid order by movie.id ',function(err,doc){
         if (err) {
@@ -280,7 +325,7 @@ router.get('/api/movieEdit',function(req,res){
         })
     }
  })
-  
+
 //轮播图编辑点击API
 router.get('/api/bannerEdit',function(req,res){
     var id = req.query.id;
@@ -292,8 +337,6 @@ router.get('/api/bannerEdit',function(req,res){
        }
     }) 
  })
-
-
 
 //修改轮播图API
 router.post('/api/bannerUpload',function(req,res){
@@ -326,9 +369,8 @@ router.post('/api/bannerDelete',function(req,res){
 })
 
 //轮播图列表获取API
-router.get('/api/banner', checkLogin);
 router.get('/api/banner',function(req,res){
-    connection.query('SELECT * FROM banner WHERE enable = 1', function(err, doc){
+    connection.query('SELECT * FROM banner WHERE enable = 1 LIMIT 3', function(err, doc){
         if (err) {
            return console.log(err)
         } else if (doc) {
@@ -350,6 +392,7 @@ router.get('/api/movieCategoryList',function(req,res){
         }
     }) 
 });
+
 //点击电影分类API
 router.get('/api/movieCategoryEdit',function(req,res){
     var id = req.query.id;
@@ -405,7 +448,6 @@ router.post('/api/movieCategoryAdd',function(req,res){
         })
  })
 
-
 //取到用户列表API
 router.get('/api/userinfo',function(req,res){
     connection.query('SELECT * FROM user order by id', function(err, doc){
@@ -419,7 +461,6 @@ router.get('/api/userinfo',function(req,res){
         }
     }) 
 });
-
 
 //更新用户信息API
 router.post('/api/userinfoUpload',function(req,res){
@@ -440,7 +481,6 @@ router.post('/api/userinfoUpload',function(req,res){
     })
 })
 
- 
 //点击用户编辑API
 router.get('/api/userinfoEdit',function(req,res){
     var id = req.query.id;
@@ -490,7 +530,6 @@ router.post('/api/userleaveBan',function(req,res){
 })
 
 //取到话题列表API(分页)
-router.post('/api/topiclistPage', checkLogin);
 router.post('/api/topiclistPage',function(req, res){
     var getpageNum = req.body.pageNum;
     var startPage = parseInt(getpageNum * 10);
@@ -508,7 +547,6 @@ router.post('/api/topiclistPage',function(req, res){
 })
 
 //取到话题列表API
-router.get('/api/topiclist', checkLogin);
 router.get('/api/topiclist',function(req, res){
     connection.query('SELECT topic.id,topic.tname,topic.time,topic.enable,topicCategory.name FROM topic LEFT OUTER JOIN topicCategory ON topic.categoryId = topicCategory.tid order by topic.id ',function(err,doc){
         if (err) {
@@ -561,6 +599,17 @@ router.get('/api/topicCategoryList',function(req,res){
 router.get('/api/topicCategoryEdit',function(req,res){
     var id = req.query.id;
     connection.query("SELECT * FROM topicCategory WHERE tid='"+id+"'" ,function(err, doc){
+      if (err) {
+        return console.log(err)
+      } else if (doc) {
+        res.json(doc);
+    }
+  }) 
+})
+
+//取到用户反馈
+router.get('/api/userfeedback',function(req,res){
+    connection.query("SELECT * FROM advise" ,function(err, doc){
       if (err) {
         return console.log(err)
       } else if (doc) {
@@ -625,11 +674,9 @@ router.post('/api/topicCategoryAdd',function(req,res){
             if(err){
                 resBody.state='上传失败';
                 res.send(resBody)
-                console.log('err')
             }else{
                 resBody.state='上传成功';
                 res.send(resBody)
-                console.log(doc)
             }
         })
   })
@@ -660,15 +707,149 @@ router.get('/api/topicEdit',function(req,res){
     var id = req.query.id;
     connection.query("SELECT * FROM topic WHERE id='"+id+"'" ,function(err, doc){
       if (err) {
-        return console.log(err)
+        console.log(err)
       } else if (doc) {
         res.json(doc);
     }
   }) 
 })
 
+//影片评论管理
+router.get('/api/getMovieComment', function(req, res){
+    connection.query('SELECT movieComment.id, movieComment.comment,movieComment.time,movieComment.enable,user.username,user.thumb,movie.Mname FROM movieComment LEFT JOIN(user,movie) ON (user.id = movieComment.uid AND movie.id = movieComment.mid)',function(err, doc){
+        if(err){
+          res.send(err);
+        }else if (doc) {
+           res.json({
+            errno: 0,
+            data: doc
+          });
+        }     
+    })
+})
 
-//登陆／验证API
+
+//影片评论管理(分页)
+router.post('/api/getMovieCommentPage', function(req, res){
+    var getpageNum = req.body.pageNum;
+    var startPage = parseInt(getpageNum * 10);
+    var limitNum = '10';
+    connection.query('SELECT movieComment.id, movieComment.comment,movieComment.time,movieComment.enable,user.username,user.thumb,movie.Mname FROM movieComment LEFT JOIN(user,movie) ON (user.id = movieComment.uid AND movie.id = movieComment.mid) limit '+startPage+','+limitNum+'',function(err, doc){
+        if(err){
+           res.send(err);
+        }else if (doc) {
+           res.json({
+            errno: 0,
+            data: doc
+          });
+        }    
+    })
+})
+
+//影片评论删除
+router.post('/api/movieCommentDelete',function(req,res){
+    var id = req.body.id;
+    connection.query("DELETE FROM movieComment WHERE id='"+id+"'" ,function(err, doc){
+      if (err) {
+        return console.log(err)
+      } else{
+         res.send('删除成功')
+    }
+  }) 
+})
+
+//封禁视频评论API
+router.post('/api/BanmovieComment',function(req,res){
+    const id = req.body.id;
+    connection.query('update movieComment set enable = "0"  WHERE id ="' + id + '"',function(err, doc){
+        if(err){
+         console.log(err);
+        } else{
+         res.send('已被封禁')
+        }
+    })
+})
+
+//解封视频评论API
+router.post('/api/unBanMovieComment',function(req,res){
+    const id = req.body.id;
+    connection.query('update movieComment set enable = "1"  WHERE id ="' + id + '"',function(err, doc){
+        if(err){
+         console.log(err);
+        } else{
+         res.send('已被封禁')
+        }
+    })
+})
+
+//话题评论管理
+router.get('/api/getTopicComment', function(req, res){
+    connection.query('SELECT topicComment.id, topicComment.comment,topicComment.time,topicComment.enable,user.username,user.thumb,topic.tname FROM topicComment LEFT JOIN(user,topic) ON (user.id = topicComment.uid AND topic.id = topicComment.tid)',function(err, doc){
+        if(err){
+          res.send(err);
+        }else if (doc) {
+           res.json({
+            errno: 0,
+            data: doc
+          });
+        }     
+    })
+})
+
+//话题评论管理(分页)
+router.post('/api/getTopicCommentPage', function(req, res){
+    var getpageNum = req.body.pageNum;
+    var startPage = parseInt(getpageNum * 10);
+    var limitNum = '10';
+    connection.query('SELECT topicComment.id,topicComment.comment,topicComment.time,topicComment.enable,user.username,user.thumb,topic.tname FROM topicComment LEFT JOIN(user,topic) ON (user.id = topicComment.uid AND topic.id = topicComment.tid) limit '+startPage+','+limitNum+'',function(err, doc){
+        if(err){
+           res.send(err);
+        }else if (doc) {
+           res.json({
+            errno: 0,
+            data: doc
+          });
+        }    
+    })
+})
+
+//封禁话题评论API
+router.post('/api/BantopicComment',function(req,res){
+    const id = req.body.id;
+    connection.query('update topicComment set enable = "0"  WHERE id ="' + id + '"',function(err, doc){
+        if(err){
+         console.log(err);
+        } else{
+         res.send('已被封禁')
+        }
+    })
+})
+
+//解封话题评论API
+router.post('/api/unBantopicComment',function(req,res){
+    const id = req.body.id;
+    connection.query('update topicComment set enable = "1"  WHERE id ="' + id + '"',function(err, doc){
+        if(err){
+         console.log(err);
+        } else{
+         res.send('已被封禁')
+        }
+    })
+})
+
+//话题评论删除   
+router.post('/api/topicCommentDelete',function(req,res){
+    var id = req.body.id;
+    connection.query("DELETE FROM topicComment WHERE id='"+id+"'" ,function(err, doc){
+      if (err) {
+        return console.log(err)
+      } else{
+         res.send('删除成功')
+      }
+   }) 
+})
+
+//登陆／验证API  通用
 router.post('/api/login', function(req, res){
     var userName = req.body.userName,
     password = md5(req.body.password),
@@ -685,7 +866,7 @@ router.post('/api/login', function(req, res){
               if(doc[0].password==password){
                 req.session.user = doc[0].username;
                 resBody.state = '登陆成功';
-                res.send(resBody);
+                res.send(doc);
                }else{
                resBody.state = '密码错误'
                res.send(resBody)
@@ -695,7 +876,7 @@ router.post('/api/login', function(req, res){
     })
 });
 
- //登出api
+ //登出api  通用
  router.post('/api/logout',function(req, res){
     req.session.user = null;
     res.send('已登出');
@@ -703,34 +884,24 @@ router.post('/api/login', function(req, res){
 
 //修改密码API
 router.post('/api/setPsw',function(req, res){
-    var userName = req.body.userName,
+    uid = req.body.id,
     password = req.body.password,
     repeatPsw = req.body.repeatPsw,
     resBody = {state:''}
-    if(password === repeatPsw && userName==='admin'){
-    connection.query('update user set password = md5("' + password + '")',function(err, doc){
+    if(password === repeatPsw && uid!=''){
+    connection.query('update user set password = md5("' + password + '") WHERE id = '+uid+' ',function(err, doc){
         if(err){
-            console.log(err);
             resBody.state = '修改失败';
             res.send(resBody);
         }else{
             resBody.state = '修改成功'
             res.send(resBody);
-            console.log(userName + password + repeatPsw)
         }
     })
   } else{
     console.log('两次密码输入不一致，请重新输入!');
-    console.log(userName + password + repeatPsw)
   }
 })
 
-//中间件，检查登陆状态，如未登陆跳转login页
-function checkLogin(req, res, next) {
-  if (!req.session.user) {
-      res.redirect('/login');
-    }
-    next();
-  }
 
 module.exports = router

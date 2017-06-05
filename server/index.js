@@ -8,6 +8,7 @@ const resolve = file =>path.resolve(__dirname, file)
 // var config = require('../build/webpack.base.config')
 const app = express()
 const api = require('./api')
+const feapi = require('./fe')
 const session = require('express-session')
 const redisStore = require('connect-redis')(session)
 
@@ -24,6 +25,15 @@ app.use(session({
   cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
 }));  
 
+app.all('*', function(req, res, next) {  
+    res.header("Access-Control-Allow-Origin", "*");  
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");  
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");  
+    res.header("X-Powered-By",' 3.2.1')  
+    res.header("Content-Type", "application/json;charset=utf-8");  
+    next();  
+});  
+
 // const createBundleRenderer = require('vue-server-renderer').createBundleRenderer
 
 app.set('port', (process.env.port || 9000))
@@ -33,6 +43,7 @@ app.use(cookieParser())
 app.use('/dist', express.static(resolve('../dist')))
 app.use('/upload',express.static(resolve('../upload')));
 app.use(api)
+app.use(feapi)
 
 app.get('*', function (req, res) {
   const html = fs.readFileSync(resolve('../index.html'), 'utf-8')

@@ -30,6 +30,8 @@
 </template>
 
 <script>
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
+
   export default {
     data() {
       return {
@@ -42,7 +44,7 @@
     created() {
         this.$store.dispatch('setTitlename', {name:'轮播图编辑'})
         const id = this.$route.query.id
-        this.$http.get('/api/bannerEdit',{
+        this.$http.get(''+LOCALHOST_URL+'/api/bannerEdit',{
           params:{id : id}
         }).then((response)=>{
           let body = response.body;
@@ -52,7 +54,7 @@
     },
     methods: {
       deletePic() {
-        this.$http.post('/api/deletePic',{
+        this.$http.post(''+LOCALHOST_URL+'/api/deletePic',{
          imgSrc: this.originPic
         }).then((response) => {
            console.log('成功')
@@ -68,7 +70,7 @@
         if(this.imgSrc ==''){
           this.originPic === this.imgSrc;
         }
-        this.$http.post('/api/bannerUpload',{
+        this.$http.post(''+LOCALHOST_URL+'/api/bannerUpload',{
           bannerName: this.bannerName,
           bannerSrc: this.imgSrc,
           id : id

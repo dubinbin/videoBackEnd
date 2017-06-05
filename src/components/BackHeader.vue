@@ -17,13 +17,14 @@
 
 <script>
 import {mapState}  from 'vuex'
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
 
   export default {
     methods: {
       logout() {
-        this.$http.post('/api/logout').then((response) => {
+        this.$http.post(''+LOCALHOST_URL+'/api/logout').then((response) => {
             this.$store.commit('SET_USER', {name: ''})
-            this.$router.push('/login')
+            this.$router.push('/')
             this.$message({
                 message: '已登出',
                 type: 'success'
@@ -75,6 +76,7 @@ import {mapState}  from 'vuex'
 .userNow{
     position: absolute;
     right: 2%;
+    cursor: pointer;
     top: 15px;
     font-size: 17px;
 }

@@ -93,7 +93,7 @@
 </template>
 
 <script>
-
+import { LOCALHOST_URL } from '../assets/js/localhost.js'
   export default {
     data() {
       return {
@@ -114,13 +114,13 @@
     },
     created (){
         this.$store.dispatch('setTitlename', {name:'影片编辑'})
-        this.$http.get('/api/movieCategoryList').then((response)=>{
+        this.$http.get(''+LOCALHOST_URL+'/api/movieCategoryList').then((response)=>{
           let body = response.body;
           this.movieCategory = body;
         });
 
         var id = this.$route.query.id
-        this.$http.get('/api/movieEdit',{
+        this.$http.get(''+LOCALHOST_URL+'/api/movieEdit',{
           params:{id : id}
          }).then((response)=>{
           let body = response.body;
@@ -128,8 +128,8 @@
           this.showDate = body[0].showTime;
           this.Mdesc = body[0].content;
           this.actor= body[0].Actor;
-          this.videoSrc = body[0].movieUrl;
-          this.picSrc = body[0].PicUrl;
+          this.videoSrc =LOCALHOST_URL + body[0].movieUrl.substring(1);
+          this.picSrc = LOCALHOST_URL + body[0].PicUrl.substring(1);
           this.movieCid = body[0].fid;
           this.MshowTime = body[0].moviePlayTime;
         })
@@ -139,7 +139,7 @@
         this.$refs.video.submit();  
       }, 
       deleteOld() {
-        this.$http.post('/api/deleteVideo',{
+        this.$http.post(''+LOCALHOST_URL+'/api/deleteVideo',{
          videoSrc:this.videoSrc
         }).then((response) => {
            console.log('成功')
@@ -168,7 +168,7 @@
       //提交影片
       moiveUpload(){
         var id = this.$route.query.id
-        this.$http.post('/api/moiveUpload',{
+        this.$http.post(''+LOCALHOST_URL+'/api/moiveUpload',{
           movieName: this.Mname,
           PicSrc : this.picSrc,
           showTime: this.showDate,

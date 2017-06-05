@@ -21,6 +21,7 @@
 		        <el-menu-item-group>
 		          <router-link :to="{path:'movieupload'}"><el-menu-item index="2-1">上传视频</el-menu-item></router-link>
 		          <router-link :to="{path:'movielist'}"><el-menu-item index="2-2">视频列表</el-menu-item></router-link>
+							<router-link :to="{path:'movieCommentlist'}"><el-menu-item index="2-3">视频评论管理</el-menu-item></router-link>
 		         <el-submenu index="2-3">
           			<template slot="title">视频分类</template>
           			<router-link :to="{path:'movieCategoryList'}"><el-menu-item index="1-4-1">现有分类</el-menu-item></router-link>
@@ -33,6 +34,7 @@
 		        <el-menu-item-group>
 		          <router-link :to="{path:'foundTopicList'}"><el-menu-item index="3-1">话题列表</el-menu-item></router-link>
 		          <router-link :to="{path:'foundTopicAdd'}"><el-menu-item index="3-3">话题增加</el-menu-item></router-link>
+							<router-link :to="{path:'topicCommentlist'}"><el-menu-item index="3-1">话题评论管理</el-menu-item></router-link>
 		        </el-menu-item-group>
 							<el-submenu index="3-3">
           			<template slot="title">话题分类</template>
@@ -40,8 +42,9 @@
           			 <router-link :to="{path:'topicCategoryAdd'}"><el-menu-item index="1-4-2">增加分类</el-menu-item></router-link>
                </el-submenu>
 		      </el-submenu>
-		        <router-link :to="{path:'userManage'}"><el-menu-item index="4">用户管理</el-menu-item></router-link>
-		      	<router-link :to="{path:'userinfo'}"><el-menu-item index="5">管理员密码</el-menu-item></router-link>
+						<router-link :to="{path:'feedback'}"><el-menu-item index="4">用户反馈</el-menu-item></router-link>
+		        <router-link :to="{path:'userManage'}"><el-menu-item index="5">用户管理</el-menu-item></router-link>
+		      	<router-link :to="{path:'userinfo'}"><el-menu-item index="6">管理员密码</el-menu-item></router-link>
 		    </el-menu>
 	         </el-col>
 	       </div>
@@ -92,7 +95,7 @@ export default {
 .ControlPanel{
 	height: 100%;
 	background: #324157;
-	position: fixed;
+	position: absolute;
 	width: 180px;
     margin-top: 46px;
 }
