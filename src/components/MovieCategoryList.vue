@@ -29,7 +29,7 @@
         <el-button
           size="small"
           type="danger"
-          @click="mCategoryDelete(scope.row.id, index)">删除</el-button>
+          @click="mCategoryDelete(scope.row.id, scope.$index, tableData)">删除</el-button>
         </template>
         </el-table-column>
      </el-table>
@@ -68,7 +68,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
       mCategoryEdit(id) {
         this.$router.push('/movieCategoryEdit?id='+ id);
       },
-      mCategoryDelete(id, index) {
+      mCategoryDelete(id, index, rows) {
         this.$confirm('此操作将删除该分类及其所属该分类的所有影片, 请慎重!', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -85,7 +85,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
               type: 'success',
               message: '删除成功!'
             });
-            this.tableData.splice(index,1)
+            rows.splice(index,1)
         }).catch(() => {
           this.$message({
             type: 'info',

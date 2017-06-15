@@ -1,9 +1,9 @@
-# 一个后台管理系统
+# newapp
+
+> A Vue.js project
 
 ## Build Setup
 
-需要在本地准备mysql和redis环境，并启用server环境，例如用supervisor启用server/index.js来启用node服务器，否则会反向代理失败。
-介绍文章在http://www.jianshu.com/p/8811eabbc42e
 ``` bash
 # install dependencies
 npm install

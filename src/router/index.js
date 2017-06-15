@@ -40,10 +40,10 @@ export default new Router({
         auth:true
       },
       children: [
-        {path: '/movielist',component: MovieList,name:'movieList'},
-        {path: '/userinfo',component: Userinfo,name:'userinfo'},
-        {path: '/carousel',component: Carousel,name:'carousel'},
-        {path: '/carouseledit',component: CarouselEdit,name:'carouselEdit'},
+        {path: '/movielist',component:resolve=>System.import('../components/MovieList'),name:'movieList'}, //路由懒加载
+        {path: '/userinfo',component:resolve=>System.import('../components/Userinfo'),name:'userinfo'},
+        {path: '/carousel',component:resolve=>System.import('../components/Carousel'),name:'carousel'},
+        {path: '/carouseledit',component:resolve=>System.import('../components/CarouselEdit'),name:'carouselEdit'},
         {path: '/movieedit',component: MovieEdit,name:'movieEdit'},
         {path: '/carouselupload',component:CarouselUpload,name:'CarouselUpload'},
         {path: '/movieupload',component:MovieUpload,name:'MovieUpload'},
@@ -53,7 +53,7 @@ export default new Router({
         {path: '/movieCategoryAdd',component:MovieCategoryAdd,name:'MovieCategoryAdd'},
         {path: '/movieCategoryList',component:MovieCategoryList,name:'MovieCategoryList'},
         {path: '/mainBoard',component:MainBoard,name:'MainBoard'},
-        {path: '/foundTopicEdit',component:FoundTopicEdit,name:'FoundTopicEdit'},
+        {path: '/foundTopicEdit',component:resolve => System.import('../components/FoundTopicEdit'),name:'FoundTopicEdit'},
         {path: '/movieCategoryEdit',component:MovieCategoryEdit,name:'MovieCategoryEdit'},
         {path: '/userinfoEdit',component:UserinfoEdit,name:'userinfoEdit'},
         {path: '/topicCategory',component:TopicCategory, name:'TopicCategory'},

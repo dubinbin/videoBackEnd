@@ -13,7 +13,7 @@
     <el-upload
       class="upload"
       ref="upload"
-      action="/api/uploadPic"
+      action="http://back.dubinbin.cn:8080/api/uploadPic"
       name="upload"
       :on-preview="handlePreview"
       :on-success="handleAvatarSuccess"
@@ -66,9 +66,9 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           thumb: this.imgSrc,
           id : id
         }).then((response) => {
+          this.$router.push('/userManage')
           console.log(response);
         })
-        this.$router.push('/userManage')
          this.$message({
            type: 'success',
            message: '上传成功!'

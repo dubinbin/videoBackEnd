@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use(session({  
   store: new redisStore({
     host: "localhost",
-    port: 6379,
+    port: port,
     db: "0"
   }),
   resave:false,

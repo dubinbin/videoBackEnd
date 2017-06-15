@@ -63,7 +63,7 @@
         <el-button
           size="small"
           type="danger"
-          @click="DeleteMovie(scope.row.id, scope.row, index)">删除</el-button>
+          @click="DeleteMovie(scope.row.id, scope.$index, tableData)">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -115,9 +115,9 @@ import TitleLink from './TitleLink.vue'
               obj.enable = '否';
             }
             data[i] = obj;
-          }
           _this.tableData = data;
           _this.pageTotal = body.data.length;
+          }
         })
     },
     methods: {
@@ -162,14 +162,15 @@ import TitleLink from './TitleLink.vue'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            index.enable ='是';
             this.$http.post(''+LOCALHOST_URL+'/api/unBanMovie',{
             id : id
           }).then((response) => {
-            index.enable ='是';
-            this.$message({
-              type: 'success',
-              message: '已解封当前影片!'
-            });
+             console.log(response)
+              this.$message({
+                type: 'success',
+                message: '已解封当前影片!'
+              })
             },(response)=>{
               console.log(response)
             });
@@ -186,10 +187,11 @@ import TitleLink from './TitleLink.vue'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            index.enable = '否';
             this.$http.post(''+LOCALHOST_URL+'/api/movieBan',{
             id : id
           }).then((response) => {
-            index.enable = '否'
+              console.log(response)
             },(response)=>{
               console.log(response)
             });
@@ -204,7 +206,7 @@ import TitleLink from './TitleLink.vue'
           });          
         });
       },
-      DeleteMovie(id, row, index) {
+      DeleteMovie(id, index, rows) {
         this.$confirm('此操作将删除改影片, 请慎重!', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -214,13 +216,13 @@ import TitleLink from './TitleLink.vue'
             id : id
           }).then((response) => {
              this.$http.post(''+LOCALHOST_URL+'/api/deletePic',{
-             imgSrc: row.PicUrl
+             imgSrc: rows[index].PicUrl
              }).then((response)=>{
               console.log('删除成功')
              })
              
              this.$http.post(''+LOCALHOST_URL+'/api/deleteVideo',{
-             videoSrc: row.movieUrl
+             videoSrc: rows[index].movieUrl
              }).then((response)=>{
               console.log('删除成功')
              })
@@ -231,7 +233,7 @@ import TitleLink from './TitleLink.vue'
               type: 'success',
               message: '删除成功!'
             });
-            this.tableData.splice(index,1);
+            rows.splice(index,1);
         }).catch(() => {
           this.$message({
             type: 'info',

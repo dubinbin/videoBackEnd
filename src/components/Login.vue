@@ -27,9 +27,6 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
 	      password: ''
 	    }
 	  },
-   created () {
-      alert('测试账号test,密码1234,求各位老铁不要搞暴力写入测试～')
-   },
    methods:{
       login() {
         this.userName = this.userName.trim()

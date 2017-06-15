@@ -41,13 +41,13 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           categoryName: this.categoryName,
           id : id
         }).then((response) => {
-          console.log(response);
-        })
         this.$router.push('/movieCategoryList')
          this.$message({
            type: 'success',
            message: '上传成功!'
         });
+          console.log(response);
+        })
       },
       resetForm(){
         this.categoryName = ''

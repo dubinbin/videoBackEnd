@@ -1,7 +1,7 @@
 <template>
   <div class="found">
   <div style="margin: 20px;"></div>
-  <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
+  <el-form :label-position="labelPosition" label-width="80px">
     <el-form-item label="话题">
       <el-input v-model="topicName"></el-input>
     </el-form-item>
@@ -30,7 +30,7 @@
     <el-upload
       class="upload"
       ref="upload"
-      action="/api/uploadEditorPic"
+      action="http://back.dubinbin.cn:8080/api/uploadEditorPic"
       name="upload"
       :on-preview="handlePreview"
       :on-success="uploadPicCallback"
@@ -45,7 +45,7 @@
       <div class="editor-area">
         <el-form-item label="文章"></el-form-item>
         <!-- editor -->
-        <div id="summernote"></div>
+        <div id="summernote" v-loading.body="loading"></div>
       </div>
 
     <el-form-item>
@@ -58,8 +58,14 @@
 
 <script>
 import $ from 'jquery';
+import { mapState } from 'vuex';
 import {formatDate} from '../assets/js/date';
 import { LOCALHOST_URL } from '../assets/js/localhost.js'
+import 'bootstrap/js/modal.js'
+import 'bootstrap/js/dropdown.js'
+import 'bootstrap/js/tooltip.js'
+import 'summernote'
+import 'summernote/dist/lang/summernote-zh-CN.js'
 
   export default {
     data() {
@@ -72,7 +78,8 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           content:'',
           coverPic:'',
           topicId:'',
-          article:''
+          article:'',
+          loading: false
         }
     },
     created () {
@@ -100,6 +107,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
             var Picdata = new FormData();
             var imgUrl = null;
             Picdata.append('upload',files[0]);
+            this.loading = true;
 
             $.ajax({
                 url: ''+LOCALHOST_URL+'/api/uploadEditorPic',
@@ -109,7 +117,8 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
                 processData: false,
                 contentType: false
               }).success(function(res) {
-                  let changeUrl = LOCALHOST_URL + res.substring(2);
+                  this.loading = false;
+                  let changeUrl = LOCALHOST_URL + res.substring(1);
                  $('#summernote').summernote("insertImage", changeUrl);  
               }).fail(function(res) {
                   console.log('error')
@@ -130,6 +139,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           coverPic: this.coverPic,
           categoryId: this.topicId,
           id : id,
+          uid:this.$store.state.user.id,
           article: sendArticle,
           time :serializeDate
         }).then((response) => {
@@ -152,7 +162,16 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
       handlePreview(file) {
         console.log(file);
       }
-    }
+    },
+     computed:mapState({
+        user(){
+          var getUserName = window.localStorage.getItem('userName');
+          if(this.$store.state.user.name ==''){
+              this.$store.commit('GET_USER', {name: getUserName})
+          }
+            return this.$store.state.user;
+          }
+      })
   }
 </script>
 

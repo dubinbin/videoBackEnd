@@ -29,7 +29,7 @@
         <el-button
           size="small"
           type="danger"
-          @click="topicCategoryDelete(scope.row.id, index)">删除</el-button>
+          @click="topicCategoryDelete(scope.row.id, scope.$index, tableData)">删除</el-button>
         </template>
         </el-table-column>
      </el-table>
@@ -68,7 +68,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
       topicCategoryEdit(id) {
         this.$router.push('/topicCategoryEdit?id='+ id);
       },
-      topicCategoryDelete(id, index) {
+      topicCategoryDelete(id, index,rows) {
         this.$confirm('此操作将删除该分类及其所属该分类的所有内容, 请慎重!', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -77,15 +77,15 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
             this.$http.post(''+LOCALHOST_URL+'/api/topicCategoryDel',{
             id : id
           }).then((response) => {
-             console.log('删除成功')
+              console.log(response)
             },(response)=>{
               console.log(response)
-            });
+         });
+            rows.splice(index, 1)
             this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
-            this.tableData.splice(index,1)
+                type: 'success',
+                message: '删除成功!'
+          });
         }).catch(() => {
           this.$message({
             type: 'info',

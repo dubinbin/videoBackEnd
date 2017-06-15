@@ -29,7 +29,7 @@
         <el-button
           size="small"
           type="danger"
-          @click="bannerDelete(scope.row.id, scope.row, index)">删除</el-button>
+          @click="bannerDelete(scope.row.id, scope.$index, tableData)">删除</el-button>
         </template>
         </el-table-column>
      </el-table>
@@ -52,9 +52,6 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
     created () {
         this.$store.dispatch('setTitlename', {name:'轮播图'})
         this.$http.get(''+LOCALHOST_URL+'/api/banner').then((response)=>{
-          if(response.body ==='未登陆'){
-             this.$router.push('/login')
-          }else{
           let body = response.body;
           var data = [];
           let _this = this;
@@ -64,25 +61,25 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
             obj.title = body.data[i].title;
             obj.url = body.data[i].url;
             data[i] = obj;
-            _this.tableData = data;
-          }}
+            }
+           _this.tableData = data;  
         })
     },
     methods: {
       bannerEdit(id) {
         this.$router.push('/carouseledit?id='+ id);
       },
-      bannerDelete(id,row,index) {
-         var bannerUrl = row.url;
-         this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+      bannerDelete(id,index,rows) {
+         var bannerUrl = rows[index].url;
+         this.$confirm('此操作将删除该轮播图, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/bannerDelete',{
+            this.$http.post(''+LOCALHOST_URL+'/api/bannerDelete',{
             id : id
           }).then((response) => {
-             this.$http.post('/api/deletePic',{
+             this.$http.post(''+LOCALHOST_URL+'/api/deletePic',{
              imgSrc: bannerUrl
              }).then((response)=>{
               console.log('删除成功')
@@ -94,7 +91,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
               type: 'success',
               message: '删除成功!'
             });
-            this.tableData.splice(index,1)
+            rows.splice(index,1)
         }).catch(() => {
           this.$message({
             type: 'info',

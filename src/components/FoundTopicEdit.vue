@@ -35,7 +35,7 @@
     <el-upload
       class="upload"
       ref="upload"
-      action="/api/uploadEditorPic"
+      action="http://back.dubinbin.cn:8080/api/uploadEditorPic"
       name="upload"
       :on-preview="handlePreview"
       :on-success="uploadPicSuccess"
@@ -65,6 +65,11 @@
 import $ from 'jquery'
 import {formatDate} from '../assets/js/date';
 import { LOCALHOST_URL } from '../assets/js/localhost.js'
+import 'bootstrap/js/modal.js'
+import 'bootstrap/js/dropdown.js'
+import 'bootstrap/js/tooltip.js'
+import 'summernote'
+import 'summernote/dist/lang/summernote-zh-CN.js'
 
   export default {
     data() {
@@ -77,7 +82,9 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           options:[],
           coverPic:'',
           topicId:'',
-          article:''
+          article:'',
+          NewimgSrc:'',
+          getImgSrc:''
         }
     },
     created () {
@@ -94,6 +101,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           let body = response.body;
           this.topicName = body[0].tname;
           this.content= body[0].content;
+          this.getImgSrc = body[0].coverPic;
           this.coverPic =LOCALHOST_URL+ body[0].coverPic.substring(1);
           this.topicId = body[0].categoryId;
           this.article = body[0].article;
@@ -138,26 +146,53 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
     },
     methods: {
       submitUpload() {
-        this.$refs.upload.submit();    
+        this.deletePic();   
+        this.$refs.upload.submit(); 
       }, 
+       uploadPicSuccess(res,file){
+        this.NewimgSrc = res;
+      },
+      deletePic() {
+        this.$http.post(''+LOCALHOST_URL+'/api/deletePic',{
+         imgSrc: this.getImgSrc
+        }).then((response) => {
+           console.log('成功')
+         },(response)=>{
+            console.log(response)
+        });  
+      },
       editTopic() {
         let id = this.$route.query.id;
         let sendDate = new Date();
         let serializeDate = formatDate(sendDate, 'yyyy-MM-dd hh:mm');
         let sendArticle = $('#summernote').summernote('code');
-        this.$http.post('/api/topicUpload',{
-          topicName: this.topicName,
-          content : this.content,
-          coverPic: this.coverPic,
-          categoryId: this.topicId,
-          id : id,
-          article: sendArticle,
-          time :serializeDate
-        }).then((response) => {
-         this.$router.push('/foundTopicList')
-         },(response)=>{
-            console.log(response)
-        });
+        if(this.NewimgSrc=='' || this.NewimgSrc==null || this.NewimgSrc=='undefined' ){      
+          this.$http.post(''+LOCALHOST_URL+'/api/topicUpload',{
+              topicName: this.topicName,
+              content : this.content,
+              coverPic: this.getImgSrc,
+              categoryId: this.topicId,
+              id : id,
+              article: sendArticle,
+              time :serializeDate
+            }).then((response) => {
+              this.$router.push('/foundTopicList');
+              console.log(response);
+            })
+        }else{
+            this.$http.post(''+LOCALHOST_URL+'/api/topicUpload',{
+                topicName: this.topicName,
+                content : this.content,
+                coverPic: this.NewimgSrc,
+                categoryId: this.topicId,
+                id : id,
+                article: sendArticle,
+                time :serializeDate
+              }).then((response) => {
+                this.$router.push('/foundTopicList');
+                console.log(response);
+              })
+        }
       },
       resetForm() {
       },
@@ -166,9 +201,6 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
       },
       handlePreview(file) {
         console.log(file);
-      },
-      uploadPicSuccess(res,file){
-        this.coverPic = res;
       }
     }
   }

@@ -60,7 +60,7 @@
         <el-button
           size="small"
           type="danger"
-          @click="DeleteComment(scope.row.id, scope.row, index)">删除</el-button>
+          @click="DeleteComment(scope.row.id, scope.$index, tableData)">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -152,10 +152,10 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            index.enable = '是';
             this.$http.post(''+LOCALHOST_URL+'/api/unBanMovieComment',{
             id : id
           }).then((response) => {
-             index.enable = '是';
              console.log(response)
             },(response)=>{
               console.log(response)
@@ -177,10 +177,10 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            index.enable = '否';
             this.$http.post(''+LOCALHOST_URL+'/api/BanmovieComment',{
             id : id
           }).then((response) => {
-            index.enable = '否';
             console.log(response)
             },(response)=>{
               console.log(response)
@@ -196,7 +196,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           });          
         });
       },
-      DeleteComment(id, row, index) {
+      DeleteComment(id, index, rows) {
         this.$confirm('此操作将删除该评论', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -213,7 +213,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
               type: 'success',
               message: '删除成功!'
             });
-            this.tableData.splice(index,1)
+            rows.splice(index,1)
         }).catch(() => {
           this.$message({
             type: 'info',

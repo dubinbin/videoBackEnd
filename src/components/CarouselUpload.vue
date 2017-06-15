@@ -1,7 +1,7 @@
 <template>
   <div class="carousel_uplaod">
   <div style="margin: 20px;"></div>
-  <el-form :label-position="labelPosition">
+  <el-form>
    <el-form-item label="名称">
       <el-input v-model="bannerName"></el-input>
     </el-form-item> 
@@ -10,7 +10,7 @@
       accept ='image/*'
       class="upload"
       ref="upload"
-      action="/api/uploadPic"
+      action="http://back.dubinbin.cn:8080/api/uploadPic"
       name="banner"
       :on-preview="handlePreview"
       :on-success="handleAvatarSuccess"
@@ -49,9 +49,9 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
          bannerName: this.bannerName,
          bannerSrc: this.imgSrc
         }).then((response) => {
+          this.$router.push('/carousel');
           console.log(response);
         })
-        this.$router.push('/carousel');
       },
       submitUpload() {
         this.$refs.upload.submit();    

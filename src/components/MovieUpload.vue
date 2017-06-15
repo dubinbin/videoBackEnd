@@ -47,7 +47,7 @@
       accept ='image/jpg'
       class="upload"
       ref="upload"
-      action="/api/uploadMoviePic"
+      action="http://back.dubinbin.cn:8080/api/uploadMoviePic"
       name="movie"
       :on-success="uploadPicSuccess"
       :on-remove="handleRemove"
@@ -64,7 +64,7 @@
       accept="video/mp4"
       class="upload"
       ref="video"
-      action="/api/addVideo"
+      action="http://back.dubinbin.cn:8080/api/addVideo"
       name="video"
       :on-success="uploadVideoSuccess"
       :on-remove="handleRemove"
@@ -85,6 +85,7 @@
 
 <script>
 import { LOCALHOST_URL } from '../assets/js/localhost.js'
+import { mapState } from 'vuex';
 
   export default {
     data() {
@@ -105,6 +106,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
       }
     },
     created (){
+      console.log(this.$store.state.user.id)
       this.$store.dispatch('setTitlename', {name:'视频上传'})
       this.$http.get(''+LOCALHOST_URL+'/api/movieCategoryList').then((response)=>{
           let body = response.body;
@@ -143,19 +145,29 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           movieUrl: this.videoSrc,
           moviePlayTime: this.MshowTime + 'min',
           BelongId: this.movieCid,
+          uid: this.$store.state.user.id,
           actor: this.actor
         }).then((response) => {
+           this.$router.push('/movielist')
            console.log('成功')
          },(response)=>{
             console.log(response)
         });
-        this.$router.push('/movielist')
          this.$message({
            type: 'success',
            message: '上传成功!'
         });
       }
-    }
+    },
+    computed:mapState({
+      user(){
+        var getUserName = window.localStorage.getItem('userName');
+        if(this.$store.state.user.name ==''){
+            this.$store.commit('GET_USER', {name: getUserName})
+        }
+          return this.$store.state.user;
+        }
+       })
   }
 </script>
 

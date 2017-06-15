@@ -52,8 +52,8 @@
       accept ='image/jpg'
       class="upload"
       ref="upload"
-      action="/api/uploadPic"
-      name="upload"
+      action="http://back.dubinbin.cn:8080/api/uploadMoviePic"
+      name="movie"
       :on-success="uploadPicSuccess"
       :on-remove="handleRemove"
       :file-list="fileList"
@@ -73,15 +73,15 @@
       accept="video/mp4"
       class="upload"
       ref="video"
-      action="/api/addVideo"
+      action="http://back.dubinbin.cn:8080/api/addVideo"
       name="video"
       :on-success="uploadVideoSuccess"
       :on-remove="handleRemove"
       :file-list="fileList2"
       :auto-upload="false">
       <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-      <el-button style="margin-left: 10px;" size="small" type="success" @click="uploadVideo(),deleteOld()">上传到服务器</el-button>
-      <div slot="tip" class="el-upload__tip">只能上传视频(mp4)文件，且不超过500M,且一次只能上传一个,修改将会直接覆盖原视频</div>
+      <el-button style="margin-left: 10px;" size="small" type="success" @click="uploadVideo()">上传到服务器</el-button>
+      <div slot="tip" class="el-upload__tip">只能上传视频(mp4)文件，且不超过500M,且一次只能上传一个,修改将会直接覆盖原视频,此操作不可逆</div>
      </el-upload>
     </el-form-item>
     <el-form-item>
@@ -94,10 +94,14 @@
 
 <script>
 import { LOCALHOST_URL } from '../assets/js/localhost.js'
+import { mapState } from 'vuex';
+
   export default {
     data() {
       return {
           labelPosition: 'top',
+          getImgSrc:'', //获得的影片封面url
+          getVideoSrc:'',//获得的影片url
           Mname: '',    //电影名
           MshowTime:'',  //上映时间
           Mdesc:'',     //简述
@@ -109,7 +113,9 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           moviePlayTime:'',  //播放时长
           showDate: '',       //上映日期
           videoSrc:'',       //视频url
-          picSrc:''         //照片url
+          picSrc:'',         //照片url
+          NewimgSrc:'',      //新上传的地址
+          NewvideoSrc:''     //新上传的视频地址
       }
     },
     created (){
@@ -128,33 +134,25 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           this.showDate = body[0].showTime;
           this.Mdesc = body[0].content;
           this.actor= body[0].Actor;
-          this.videoSrc =LOCALHOST_URL + body[0].movieUrl.substring(1);
-          this.picSrc = LOCALHOST_URL + body[0].PicUrl.substring(1);
+          this.getImgSrc = body[0].PicUrl;     //获取的未处理图片原地址
+          this.getVideoSrc = body[0].movieUrl; //获取的未处理视频原地址
+          this.videoSrc =LOCALHOST_URL + body[0].movieUrl.substring(1);//处理的原封面地址
+          this.picSrc = LOCALHOST_URL + body[0].PicUrl.substring(1);//处理的原视频地址
           this.movieCid = body[0].fid;
           this.MshowTime = body[0].moviePlayTime;
         })
     },
     methods: {
-      uploadVideo() {
-        this.$refs.video.submit();  
-      }, 
-      deleteOld() {
-        this.$http.post(''+LOCALHOST_URL+'/api/deleteVideo',{
-         videoSrc:this.videoSrc
-        }).then((response) => {
-           console.log('成功')
-         },(response)=>{
-            console.log(response)
-        });   
-      },
       PicUpload() {
+        this.deletePic();
         this.$refs.upload.submit();
       },
       uploadVideoSuccess(res, file) {
-        this.videoSrc = res;
+        this.NewvideoSrc = res;
+         console.log(this.NewvideoSrc);
       },
       uploadPicSuccess(res, file){
-        this.picSrc = res;
+        this.NewimgSrc = res;
       },
       handleRemove(file, fileList) {
         console.log(file, fileList);
@@ -165,32 +163,87 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
       dateChange(val) {
         this.showDate = val;
       },
-      //提交影片
-      moiveUpload(){
-        var id = this.$route.query.id
-        this.$http.post(''+LOCALHOST_URL+'/api/moiveUpload',{
-          movieName: this.Mname,
-          PicSrc : this.picSrc,
-          showTime: this.showDate,
-          content: this.Mdesc,
-          id : id,
-          movieUrl: this.videoSrc,
-          moviePlayTime: this.MshowTime + 'min',
-          BelongId: this.movieCid,
-          actor: this.actor
+      uploadVideo() {
+        this.deleteOldVideo();
+        this.$refs.video.submit();  
+      }, 
+      deleteOldVideo() {
+        this.$http.post(''+LOCALHOST_URL+'/api/deleteVideo',{
+         videoSrc:this.getVideoSrc
         }).then((response) => {
            console.log('成功')
          },(response)=>{
             console.log(response)
-        });
-        this.$router.push('/movielist')
-         this.$message({
-           type: 'success',
-           message: '上传成功!'
-        });
-      }
-    }
+        });   
+      },
+      //删除新图片
+      deletePic() {
+        this.$http.post(''+LOCALHOST_URL+'/api/deletePic',{
+         imgSrc: this.getImgSrc
+        }).then((response) => {
+           console.log('成功')
+         },(response)=>{
+            console.log(response)
+        });  
+      },
+      movieSubmit(picUrl,movieUrl){
+         var id = this.$route.query.id;
+         this.$http.post(''+LOCALHOST_URL+'/api/moiveUpload',{
+            movieName: this.Mname,
+            PicSrc : picUrl,
+            showTime: this.showDate,
+            content: this.Mdesc,
+            id : id,
+            movieUrl: movieUrl,
+            moviePlayTime: this.MshowTime + 'min',
+            BelongId: this.movieCid,
+            uid:this.$store.state.user.id,
+            actor: this.actor
+          }).then((response) => {
+             console.log('成功')
+           },(response)=>{
+              console.log(response)
+          });
+          this.$router.push('/movielist')
+           this.$message({
+             type: 'success',
+             message: '上传成功!'
+          });
+      },
+      //提交影片
+      moiveUpload(){
+        if(this.NewimgSrc=='' || this.NewimgSrc==null || this.NewimgSrc=='undefined'){      
+           if(this.NewvideoSrc=='' || this.NewvideoSrc==null || this.NewvideoSrc=='undefined'){
+              this.movieSubmit(this.getImgSrc, this.getVideoSrc);   
+           }
+           else{
+              //用户只上传了视频
+              this.movieSubmit(this.getImgSrc, this.NewvideoSrc);          
+           }
+        }else if(this.NewimgSrc!='' && this.NewimgSrc!=null && this.NewimgSrc!='undefined'){
+          if(this.NewvideoSrc=='' || this.NewvideoSrc==null || this.NewvideoSrc=='undefined' ){
+            //用户只上传了图片 success
+            this.movieSubmit(this.NewimgSrc, this.getVideoSrc);
+          }else{
+             //用户又上传视频又上传了图片
+             this.movieSubmit(this.NewimgSrc, this.NewvideoSrc);         
+          }
+        }
+        else{
+         console.log('不可能会有这种情况了亲')
+        }
+    },
+    computed:mapState({
+        user(){
+          var getUserName = window.localStorage.getItem('userName');
+          if(this.$store.state.user.name ==''){
+              this.$store.commit('GET_USER', {name: getUserName})
+          }
+            return this.$store.state.user;
+          }
+      })
   }
+}
 </script>
 
 <style>

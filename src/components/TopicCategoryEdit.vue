@@ -1,7 +1,7 @@
 <template>
   <div class="topicCategoryEdit">
   <div style="margin: 20px;"></div>
-  <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
+  <el-form :label-position="labelPosition" label-width="80px" >
     <el-form-item label="名称">
       <el-input v-model="topicCategoryName"></el-input>
     </el-form-item>
@@ -37,17 +37,16 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
     methods: {
       uploadCategory() {
         const id = this.$route.query.id;
-        this.$http.post(''+LOCALHOST_URL+'/api/movieCategoryUpload',{
+        this.$http.post(''+LOCALHOST_URL+'/api/topicCategoryUpload',{
           topicCategoryName: this.topicCategoryName,
           id : id
         }).then((response) => {
-          console.log(response);
-        })
-        this.$router.push('/topicCategory')
-         this.$message({
+          this.$router.push('/topicCategory')
+           this.$message({
            type: 'success',
            message: '上传成功!'
-        });
+           });
+        })
       },
       resetForm(){
         this.categoryName = ''

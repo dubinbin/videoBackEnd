@@ -34,7 +34,7 @@ export default {
             processData: false,
             contentType: false
             }).success(function(res) {
-                let changeUrl = LOCALHOST_URL + res.substring(2);
+                let changeUrl = LOCALHOST_URL + res.substring(1);
                 $('#summernote').summernote("insertImage", changeUrl);  
             }).fail(function(res) {
                 console.log('error')

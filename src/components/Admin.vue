@@ -42,9 +42,11 @@
           			 <router-link :to="{path:'topicCategoryAdd'}"><el-menu-item index="1-4-2">增加分类</el-menu-item></router-link>
                </el-submenu>
 		      </el-submenu>
-						<router-link :to="{path:'feedback'}"><el-menu-item index="4">用户反馈</el-menu-item></router-link>
-		        <router-link :to="{path:'userManage'}"><el-menu-item index="5">用户管理</el-menu-item></router-link>
-		      	<router-link :to="{path:'userinfo'}"><el-menu-item index="6">管理员密码</el-menu-item></router-link>
+						<div>
+							<router-link :to="{path:'feedback'}"><el-menu-item index="4">用户反馈</el-menu-item></router-link>
+							<router-link :to="{path:'userManage'}" v-if="this.$store.state.user.name=='admin'"><el-menu-item index="5">用户管理</el-menu-item></router-link>
+							<router-link :to="{path:'userinfo'}"><el-menu-item index="6">修改密码</el-menu-item></router-link>
+						</div>
 		    </el-menu>
 	         </el-col>
 	       </div>
@@ -62,6 +64,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import TitleLink from './TitleLink.vue';
 import myCanvas from  './MyCanvas.vue'
 import myHeader  from './BackHeader.vue';
@@ -77,7 +80,16 @@ export default {
 	  myHeader,
 		myCanvas,
 		TitleLink
-	}
+	},
+		computed:mapState({
+			user(){
+				var getUserName = window.localStorage.getItem('userName');
+				if(this.$store.state.user.name ==''){
+						this.$store.commit('GET_USER', {name: getUserName})
+				}
+					return this.$store.state.user;
+				}
+		})
 }	
 </script>
 

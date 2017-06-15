@@ -44,17 +44,17 @@
           <el-button
           size="small"
           type="warning"
-          v-if="scope.row.enable =='1'"
+          v-if="scope.row.enable =='是'"
           @click="topicBan(scope.row.id, scope.row)">小黑屋</el-button>
           <el-button
           size="small"
           type="info"
-          v-if="scope.row.enable =='0'"
+          v-if="scope.row.enable =='否'"
           @click="topicUnban(scope.row.id, scope.row)">解封</el-button>
         <el-button
           size="small"
           type="danger"
-          @click="topicDelete(scope.row.id, scope.row, index)">删除</el-button>
+          @click.native.prevent="topicDelete(scope.row.id, scope.$index, tableData)">删除</el-button>
         </template>
         </el-table-column>
      </el-table>
@@ -81,7 +81,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
       return {
         tableData: [],
         pageTotal: null,
-        currentPage: '1'
+        currentPage: 1
       }
     },
     created() {
@@ -98,6 +98,12 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
             obj.date = body.data[i].time;
             obj.category = body.data[i].name;
             obj.enable = body.data[i].enable;
+            if(body.data[i].enable =='1'){
+              obj.enable = '是';
+            }
+            else{
+              obj.enable = '否';
+            }
             data[i] = obj;
             _this.tableData = data;
             _this.pageTotal = body.data.length;
@@ -139,17 +145,18 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            index.enable ='否';
             this.$http.post(''+LOCALHOST_URL+'/api/topicBan',{
             id : id
           }).then((response) => {
-             index.enbale ='0'
+             this.$message({
+                type: 'success',
+                message: '已封禁当前话题!'
+              });
             },(response)=>{
               console.log(response)
             });
-            this.$message({
-              type: 'success',
-              message: '已封禁当前话题!'
-            });
+
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -163,38 +170,38 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            index.enable ='是'
             this.$http.post(''+LOCALHOST_URL+'/api/topicLeaveBan',{
             id : id
           }).then((response) => {
-            index.enbale ='1'
+              console.log(response)
             },(response)=>{
               console.log(response)
             });
+          }).catch(() => {
             this.$message({
-              type: 'success',
-              message: '已解封当前话题!'
-            });
-             // window.location.reload();
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消解封'
-          });          
-        });
+              type: 'info',
+              message: '已取消解封'
+            });          
+          });
       },
       topicEdit(id) {
         this.$router.push('/foundTopicEdit?id='+id);
       },
-      topicDelete(index, row) {
+      topicDelete(id, index, rows) {
          this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
+           this.$http.post(''+LOCALHOST_URL+'/api/topicDelete',{
+            id : id
+         }).then((response) => {
+             console.log('删除成功')
+            },(response)=>{
+              console.log(response)
+            });
+          rows.splice(index,1);
         }).catch(() => {
           this.$message({
             type: 'info',

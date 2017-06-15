@@ -49,7 +49,7 @@
           size="small"
           type="danger"
           v-if="scope.row.level!='超级管理员'"
-          @click="userDelete(scope.row.id, index)">删除</el-button>
+          @click="userDelete(scope.row.id, scope.$index, tableData)">删除</el-button>
         </template>
         </el-table-column>
      </el-table>
@@ -109,7 +109,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            index.enable = '封禁'
+            index.enable = '封禁';
             this.$http.post('/api/userBan',{
             id : id
           }).then((response) => {
@@ -121,7 +121,6 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
               type: 'success',
               message: '已封禁当前用户!'
             });
-             // window.location.reload();
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -135,11 +134,11 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-           index.enable = '正常'
+            index.enable = '正常'
             this.$http.post('/api/userleaveBan',{
             id : id
           }).then((response) => {
-             console.log('删除成功')
+             console.log('解封成功')
             },(response)=>{
               console.log(response)
             });
@@ -147,7 +146,6 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
               type: 'success',
               message: '已解封当前用户!'
             });
-             // window.location.reload();
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -155,7 +153,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           });          
         });
       },
-      userDelete(id, index) {
+      userDelete(id, index,rows) {
         this.$confirm('此操作将永久删除该用户, 请慎重!', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -172,7 +170,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
               type: 'success',
               message: '删除成功!'
             });
-            this.tableData.splice(index,1)
+            rows.splice(index,1)
         }).catch(() => {
           this.$message({
             type: 'info',

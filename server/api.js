@@ -12,10 +12,10 @@ var crypto = require('crypto')
 //mysql连接信息配置
 const connection = mysql.createConnection({
     host:"localhost",
-    user:"root",
-    password:"6653145",
-    database:"movie",
-    port:8889
+    user:"user",
+    password:"password",
+    database:"database",
+    port:port
 })
 connection.connect();
 
@@ -110,7 +110,7 @@ router.post('/api/uploadEditorPic', upload.single('upload'), function(req, res){
 router.post('/api/setUserPic',function(req,res){
     let src = req.body.PicSrc;
     let id  = req.body.uid;
-    connection.query('update user set thumb = "' + src + '"  WHERE id ="' + id + '"',function(err, doc){
+    connection.query("update user set thumb = '"+ src +"'  WHERE id = '"+ id +"' ",function(err, doc){
         if(err){
          console.log(err);
         } else{
@@ -177,7 +177,6 @@ router.post('/api/movieBan',function(req,res){
         }
     })
 })
-
 //视频列表 删除视频API
 router.post('/api/movieDelete',function(req, res){
     const id = req.body.id;
@@ -185,7 +184,13 @@ router.post('/api/movieDelete',function(req, res){
       if (err) {
         return console.log(err)
       } else{
-         res.send('删除成功')
+       connection.query("DELETE FROM movieComment WHERE id='"+id+"'" ,function(err, doc){
+            if (err) {
+                return console.log(err)
+            } else{
+                res.send('删除成功')
+            }
+        }) 
       }
     }) 
  })
@@ -255,8 +260,9 @@ router.get('/api/movielist',function(req, res){
     moviePlayTime = req.body.moviePlayTime,
     actor = req.body.actor,
     BelongId = req.body.BelongId,
+    uid = req.body.uid,
     resBody = {state:''}
-        connection.query("INSERT INTO movie set Mname='"+movieName+"',Actor='"+actor+"',PicUrl='"+PicUrl+"',showTime='"+showTime+"',content='"+content+"',movieUrl='"+movieUrl+"',moviePlayTime='"+moviePlayTime+"',fid='"+BelongId+"'", function(err,doc){
+        connection.query("INSERT INTO movie set Mname='"+movieName+"',Actor='"+actor+"',PicUrl='"+PicUrl+"',showTime='"+showTime+"',content='"+content+"',movieUrl='"+movieUrl+"',moviePlayTime='"+moviePlayTime+"',fid='"+BelongId+"'",uid = '"+uid+"', function(err,doc){
             if(err){
                 resBody.state='上传失败';
                 res.send(resBody)
@@ -280,8 +286,9 @@ router.get('/api/movielist',function(req, res){
     actor = req.body.actor,
     BelongId = req.body.BelongId,
     id = req.body.id,
+    uid= req.body.uid,
     resBody = {state:''}
-        connection.query("update movie set Mname='"+movieName+"',Actor='"+actor+"',PicUrl='"+PicUrl+"',showTime='"+showTime+"',content='"+content+"',movieUrl='"+movieUrl+"',moviePlayTime='"+moviePlayTime+"',fid='"+BelongId+"' WHERE id ='"+id+"'", function(err,doc){
+        connection.query("update movie set Mname='"+movieName+"',Actor='"+actor+"',PicUrl='"+PicUrl+"',showTime='"+showTime+"',content='"+content+"',movieUrl='"+movieUrl+"',moviePlayTime='"+moviePlayTime+"',uid = '"+uid+"',fid='"+BelongId+"' WHERE id ='"+id+"'", function(err,doc){
             if(err){
                 resBody.state='上传失败';
                 res.send(resBody)
@@ -370,7 +377,7 @@ router.post('/api/bannerDelete',function(req,res){
 
 //轮播图列表获取API
 router.get('/api/banner',function(req,res){
-    connection.query('SELECT * FROM banner WHERE enable = 1 LIMIT 3', function(err, doc){
+    connection.query('SELECT * FROM banner WHERE enable = 1', function(err, doc){
         if (err) {
            return console.log(err)
         } else if (doc) {
@@ -572,6 +579,18 @@ router.post('/api/topicBan',function(req,res){
     })
 })
 
+//删除话题
+router.post('/api/topicDelete',function(req, res){
+    const id = req.body.id;
+    connection.query("DELETE FROM topic WHERE id='"+id+"'" ,function(err, doc){
+      if (err) {
+        return console.log(err)
+      } else{
+        res.send('success')
+      }
+    }) 
+ })
+
 //解封话题API
 router.post('/api/topicLeaveBan',function(req,res){
     id = req.body.id;
@@ -667,10 +686,11 @@ router.post('/api/topicCategoryAdd',function(req,res){
     content = req.body.content,
     coverPic = req.body.coverPic,
     time = req.body.time,
+    uid = req.body.uid,
     categoryId = req.body.categoryId,
     article = req.body.article,
     resBody = {state:''}
-        connection.query("INSERT INTO topic set tname='"+topicName+"',content='"+content+"',coverPic='"+coverPic+"',time='"+time+"',categoryId='"+categoryId+"',article='"+article+"'", function(err,doc){
+        connection.query("INSERT INTO topic set tname='"+topicName+"',content='"+content+"',coverPic='"+coverPic+"',time='"+time+"',categoryId='"+categoryId+"',uid='"+uid+"',article='"+article+"'", function(err,doc){
             if(err){
                 resBody.state='上传失败';
                 res.send(resBody)
@@ -689,9 +709,10 @@ router.post('/api/topicCategoryAdd',function(req,res){
     coverPic = req.body.coverPic,
     time = req.body.time,
     categoryId = req.body.categoryId,
+    uid = req.body.uid,
     article = req.body.article,
     resBody = {state:''}
-        connection.query("update topic set tname='"+topicName+"',content='"+content+"',coverPic='"+coverPic+"',time='"+time+"',categoryId='"+categoryId+"',article='"+article+"' WHERE id ='"+id+"'", function(err,doc){
+        connection.query("update topic set tname='"+topicName+"',content='"+content+"',coverPic='"+coverPic+"',time='"+time+"',categoryId='"+categoryId+"',uid='"+uid+"',article='"+article+"' WHERE id ='"+id+"'", function(err,doc){
             if(err){
                 resBody.state='上传失败';
                 res.send(resBody)

@@ -12,9 +12,9 @@ var crypto=require('crypto')
 //mysql连接信息配置
 const connection = mysql.createConnection({
     host:"localhost",
-    user:"root",
-    password:"6653145",
-    database:"movie",
+    user:"user",
+    password:"password",
+    database:"database",
     port:8889
 })
 connection.connect();
@@ -123,7 +123,7 @@ router.get('/api/getUsercollect',function(req, res){
 //取得话题评论  //前端
 router.get('/api/getTopicCommentlist', function(req, res){
     var id = req.query.id;
-    connection.query("SELECT topicComment.id,topicComment.comment,topicComment.time,topicComment.enable,user.username,user.thumb,topic.id FROM topicComment LEFT JOIN(user,topic) ON (user.id = topicComment.uid AND topic.id = topicComment.tid) WHERE topicComment.tid='"+id+"' AND topicComment.enable = 1 ",function(err, doc){
+    connection.query("SELECT topicComment.id,topicComment.comment,topicComment.time,topicComment.enable,user.username,user.thumb,topic.id FROM topicComment LEFT JOIN(user,topic) ON (user.id = topicComment.tid AND topic.id = topicComment.tid) WHERE topicComment.tid='"+id+"' AND topicComment.enable = 1 ",function(err, doc){
         if(err){
            res.send(err);
         }else if (doc) {
@@ -195,7 +195,7 @@ router.post('/api/resign',function(req, res){
 //根据id取到对应分类电影列表API   前端
 router.get('/api/getCategorymovie',function(req, res){
     var id = req.query.id;
-    connection.query("SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid  WHERE movie.fid='"+id+"' AND enable = 1 order by movie.id LIMIT 4",function(err,doc){
+    connection.query("SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid  WHERE movie.fid='"+id+"'  order by movie.id LIMIT 4",function(err,doc){
         if (err) {
           console.log(err)
         } else if (doc) {
@@ -212,7 +212,7 @@ router.post('/api/getCategorymoviePage', function(req, res){
     var startPage = parseInt(getpageNum * 4);
     var limitNum = '4';
     var id = req.body.id;
-      connection.query('SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid  WHERE movie.fid='+id+' AND enable = 1 order by movie.id limit '+startPage+','+limitNum+' ',function(err,doc){
+      connection.query('SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid  WHERE movie.fid='+id+' order by movie.id limit '+startPage+','+limitNum+' ',function(err,doc){
         if(err){
            res.send(err);
         }else if (doc) {
@@ -260,7 +260,7 @@ router.get('/api/gettopic',function(req, res){
 router.get('/api/getmovielist',function(req, res){
     let limitNum = '4';
     let type = req.query.type;
-    connection.query('SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid WHERE movie.fid = '+type+' AND enable = 1 order by movie.id LIMIT '+limitNum+' ',function(err,doc){
+    connection.query('SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid WHERE movie.fid = '+type+'  order by movie.id LIMIT '+limitNum+' ',function(err,doc){
         if (err) {
           console.log(err)
         } else if (doc) {
@@ -298,5 +298,10 @@ router.get('/api/gettopiclist',function(req, res){
            })
         }
     })
+})
+
+router.get('/getLoginStatus',function(req, res){
+    let LoginStatus = req.session.user
+    res.send(LoginStatus);
 })
 module.exports = router
