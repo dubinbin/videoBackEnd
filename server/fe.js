@@ -181,7 +181,7 @@ router.post('/api/resign',function(req, res){
     password = md5(req.body.password),
     mobileNum = req.body.mobileNum,
     resBody = {};
-    connection.query("INSERT INTO user set username='"+username+"',password = md5('" + password + "'),mobile='"+mobileNum+"' level = 1 WHERE NO EXIST " ,function(err,doc){
+    connection.query("INSERT INTO user (username,password,mobile,level) VALUE ('"+username+"','" + password + "','"+mobileNum+"',1)" ,function(err,doc){
         if(err){
             resBody.state='注册失败';
             res.send(resBody)
