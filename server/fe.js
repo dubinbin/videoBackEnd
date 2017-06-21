@@ -12,9 +12,9 @@ var crypto=require('crypto')
 //mysql连接信息配置
 const connection = mysql.createConnection({
     host:"localhost",
-    user:"user",
-    password:"password",
-    database:"database",
+    user:"root",
+    password:"6653145",
+    database:"movie",
     port:8889
 })
 connection.connect();
@@ -77,7 +77,7 @@ router.post('/api/toggleColllect',function(req, res){
 //取到弹幕视频信息  前端
 router.get('/api/DanmuvideoInfo',function(req, res){
     var id = req.query.id;
-    connection.query("SELECT movie.id,movie.Mname,movie.PicUrl,movie.content,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable,user.thumb,user.username,movieCategory.name FROM movie LEFT JOIN(user,movieCategory) ON (movie.uid = user.id AND movie.fid = movieCategory.fid ) WHERE movie.id='"+id+"' ",function(err,doc){
+    connection.query("SELECT movie.id,movie.Mname,movie.PicUrl,movie.content,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable,user.thumb,user.username,movieCategory.name FROM movie LEFT JOIN(user,movieCategory) ON (movie.uid = user.id AND movie.fid = movieCategory.fid ) WHERE movie.id='"+id+"'AND movie.enable = 1 ",function(err,doc){
         if (err) {
           console.log(err)
         } else if (doc) {
@@ -175,6 +175,8 @@ router.post('/api/sendDanmu', function(req, res){
     })
 })
 
+
+
 //注册api  前端
 router.post('/api/resign',function(req, res){
     var username = req.body.username,
@@ -189,6 +191,26 @@ router.post('/api/resign',function(req, res){
             resBody.state='注册成功';
             res.send(resBody)
         }
+    })
+})
+
+//验证用户名是否存在
+router.post('/api/checkUserName',function(req, res){
+    var username = req.body.username,
+    resBody = {state:''};
+    connection.query('SELECT *  FROM user WHERE username = "'+username+'"',function(err,doc){
+        if (err) {
+         resBody.state='error';
+          console.log(err)
+        } else{
+          if(doc.length==0) {
+            resBody.state='不存在的';
+            res.send(resBody)
+         } else if(doc[0]){
+            resBody.state='用户名已存在';
+            res.send(resBody)         
+         }
+       }
     })
 })
 
@@ -248,7 +270,7 @@ router.get('/api/getHistory',function(req,res){
 //选择id的文章  前端
 router.get('/api/gettopic',function(req, res){
     let id = req.query.id;
-    connection.query("SELECT topic.id,topic.tname,topic.coverPic,topic.content,topic.time,topic.article,topic.enable,user.thumb,user.username,topicCategory.name FROM topic LEFT JOIN(user,topicCategory) ON (topic.uid = user.id AND topic.categoryId = topicCategory.tid ) WHERE topic.id='"+id+"' ",function(err,doc){
+    connection.query("SELECT topic.id,topic.tname,topic.coverPic,topic.content,topic.time,topic.article,topic.enable,user.thumb,user.username,topicCategory.name FROM topic LEFT JOIN(user,topicCategory) ON (topic.uid = user.id AND topic.categoryId = topicCategory.tid ) WHERE topic.id='"+id+"' AND topic.enable=1 ",function(err,doc){
         if (err) {
           console.log(err)
         } else if (doc) {
@@ -260,7 +282,7 @@ router.get('/api/gettopic',function(req, res){
 router.get('/api/getmovielist',function(req, res){
     let limitNum = '4';
     let type = req.query.type;
-    connection.query('SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid WHERE movie.fid = '+type+'  order by movie.id LIMIT '+limitNum+' ',function(err,doc){
+    connection.query('SELECT movie.id,movie.Mname,movie.PicUrl,movie.showTime,movie.movieUrl,movie.moviePlayTime,movie.enable, movieCategory.name FROM movie LEFT OUTER JOIN movieCategory ON movie.fid = movieCategory.fid WHERE movie.fid = '+type+'  AND movie.enable=1  order by movie.id LIMIT '+limitNum+' ',function(err,doc){
         if (err) {
           console.log(err)
         } else if (doc) {
@@ -288,7 +310,7 @@ router.get('/api/bannerList',function(req,res){
 
 //前端请求话题列表
 router.get('/api/gettopiclist',function(req, res){
-    connection.query('SELECT topic.id,topic.coverPic,topic.tname,topic.time,topic.enable,topicCategory.name FROM topic LEFT OUTER JOIN topicCategory ON topic.categoryId = topicCategory.tid order by topic.id ',function(err,doc){
+    connection.query('SELECT topic.id,topic.coverPic,topic.tname,topic.time,topic.enable,topicCategory.name FROM topic LEFT OUTER JOIN topicCategory ON topic.categoryId = topicCategory.tid WHERE topic.enable = 1 order by topic.id ',function(err,doc){
         if (err) {
           console.log(err)
         } else if (doc) {
@@ -299,6 +321,32 @@ router.get('/api/gettopiclist',function(req, res){
         }
     })
 })
+//前台登陆 ／／区分后台登录
+router.post('/api/loginInFe', function(req, res){
+    var userName = req.body.userName,
+    password = md5(req.body.password),
+    resBody = {state:''}
+    connection.query("SELECT * FROM user WHERE username='"+userName+"' AND enable= 1 ",function(err, doc){
+        if(err){
+            resBody.state = '账号不存在';
+            res.send(resBody);
+        }else{
+            if(doc.length==0){
+              resBody.state = '账号不存在';
+              res.send(resBody);
+            } else{
+              if(doc[0].password==password){
+                req.session.user = doc[0].username;
+                resBody.state = '登陆成功';
+                res.send(doc);
+               }else{
+               resBody.state = '密码错误'
+               res.send(resBody)
+              }
+            }
+        }
+    })
+});
 
 router.get('/getLoginStatus',function(req, res){
     let LoginStatus = req.session.user

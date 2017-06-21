@@ -12,10 +12,10 @@ var crypto = require('crypto')
 //mysql连接信息配置
 const connection = mysql.createConnection({
     host:"localhost",
-    user:"user",
-    password:"password",
-    database:"database",
-    port:port
+    user:"root",
+    password:"6653145",
+    database:"movie",
+    port:8889
 })
 connection.connect();
 
@@ -515,7 +515,7 @@ router.post('/api/userDelete',function(req,res){
 //封禁用户API
 router.post('/api/userBan',function(req,res){
     id = req.body.id;
-    connection.query('update user set enable = "0"  WHERE id ="' + id + '"',function(err, doc){
+    connection.query("update user set enable = 0  WHERE id ='"+id+"'",function(err, doc){
         if(err){
             console.log(err);
         }else{
@@ -527,7 +527,7 @@ router.post('/api/userBan',function(req,res){
 //解封用户API
 router.post('/api/userleaveBan',function(req,res){
     id = req.body.id;
-    connection.query('update user set enable = "1"  WHERE id ="' + id + '"',function(err, doc){
+    connection.query("update user set enable = 1  WHERE id ='" + id + "' ",function(err, doc){
         if(err){
             console.log(err);
         }else{
@@ -570,7 +570,7 @@ router.get('/api/topiclist',function(req, res){
 //封禁话题API
 router.post('/api/topicBan',function(req,res){
     id = req.body.id;
-    connection.query('update topic set enable = "0"  WHERE id ="' + id + '"',function(err, doc){
+    connection.query("update topic set enable = 0  WHERE id ='" + id + "' ",function(err, doc){
         if(err){
             console.log(err);
         }else{
@@ -782,7 +782,7 @@ router.post('/api/movieCommentDelete',function(req,res){
 //封禁视频评论API
 router.post('/api/BanmovieComment',function(req,res){
     const id = req.body.id;
-    connection.query('update movieComment set enable = "0"  WHERE id ="' + id + '"',function(err, doc){
+    connection.query("update movieComment set enable = 0  WHERE id ='" + id + "' ",function(err, doc){
         if(err){
          console.log(err);
         } else{
@@ -794,7 +794,7 @@ router.post('/api/BanmovieComment',function(req,res){
 //解封视频评论API
 router.post('/api/unBanMovieComment',function(req,res){
     const id = req.body.id;
-    connection.query('update movieComment set enable = "1"  WHERE id ="' + id + '"',function(err, doc){
+    connection.query("update movieComment set enable = 1  WHERE id ='" + id + "' ",function(err, doc){
         if(err){
          console.log(err);
         } else{
@@ -875,7 +875,7 @@ router.post('/api/login', function(req, res){
     var userName = req.body.userName,
     password = md5(req.body.password),
     resBody = {state:''}
-    connection.query("SELECT * FROM user WHERE username='"+userName+"'",function(err, doc){
+    connection.query("SELECT * FROM user WHERE username='"+userName+"' AND level=0",function(err, doc){
         if(err){
             resBody.state = '账号不存在';
             res.send(resBody);

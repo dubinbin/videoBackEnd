@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use(session({  
   store: new redisStore({
     host: "localhost",
-    port: port,
+    port: 6379,
     db: "0"
   }),
   resave:false,
@@ -25,6 +25,7 @@ app.use(session({
   cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
 }));  
 
+//主机允许跨域
 app.all('*', function(req, res, next) {  
     res.header("Access-Control-Allow-Origin", "*");  
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");  
@@ -36,7 +37,7 @@ app.all('*', function(req, res, next) {
 
 // const createBundleRenderer = require('vue-server-renderer').createBundleRenderer
 
-app.set('port', (process.env.port || 9000))
+app.set('port', (process.env.port || 8080))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())

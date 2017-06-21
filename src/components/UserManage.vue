@@ -101,7 +101,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
     },
     methods: {
       userEdit(id) {
-        this.$router.push('/userinfoEdit?id='+ id);
+        this.$router.push(''+LOCALHOST_URL+'/userinfoEdit?id='+ id);
       },
       userBan(id,index){
          this.$confirm('此操作将封禁该用户, 请慎重!', '提示', {
@@ -110,7 +110,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           type: 'warning'
         }).then(() => {
             index.enable = '封禁';
-            this.$http.post('/api/userBan',{
+            this.$http.post(''+LOCALHOST_URL+'/api/userBan',{
             id : id
           }).then((response) => {
              console.log('删除成功')
@@ -135,7 +135,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           type: 'warning'
         }).then(() => {
             index.enable = '正常'
-            this.$http.post('/api/userleaveBan',{
+            this.$http.post(''+LOCALHOST_URL+'/api/userleaveBan',{
             id : id
           }).then((response) => {
              console.log('解封成功')
@@ -159,7 +159,7 @@ import { LOCALHOST_URL } from '../assets/js/localhost.js'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            this.$http.post('/api/userDelete',{
+            this.$http.post(''+LOCALHOST_URL+'/api/userDelete',{
             id : id
           }).then((response) => {
              console.log('删除成功')
