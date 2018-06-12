@@ -103,11 +103,12 @@ import 'summernote/dist/lang/summernote-zh-CN.js'
           ['insert',['picture','link','video']]
         ],
         callbacks:{
-          onImageUpload:function(files){     
+          onImageUpload:function(files){ 
+            var _self = this;    
             var Picdata = new FormData();
             var imgUrl = null;
             Picdata.append('upload',files[0]);
-            this.loading = true;
+            _self.loading = true;
 
             $.ajax({
                 url: ''+LOCALHOST_URL+'/api/uploadEditorPic',
@@ -117,7 +118,7 @@ import 'summernote/dist/lang/summernote-zh-CN.js'
                 processData: false,
                 contentType: false
               }).success(function(res) {
-                  this.loading = false;
+                  _self.loading = false;
                   let changeUrl = LOCALHOST_URL + res.substring(1);
                  $('#summernote').summernote("insertImage", changeUrl);  
               }).fail(function(res) {

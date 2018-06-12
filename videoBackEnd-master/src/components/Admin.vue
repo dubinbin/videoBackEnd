@@ -64,58 +64,58 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import TitleLink from './TitleLink.vue';
-import myCanvas from  './MyCanvas.vue'
-import myHeader  from './BackHeader.vue';
+import { mapState } from "vuex";
+import TitleLink from "./TitleLink.vue";
+import myCanvas from "./MyCanvas.vue";
+import myHeader from "./BackHeader.vue";
 // import myFooter  from './BackFooter.vue';
- 
+
 export default {
-	data() {
-		return {
-			titleName:''
-		}
-	},
-	components:{
-	  myHeader,
-		myCanvas,
-		TitleLink
-	},
-		computed:mapState({
-			user(){
-				var getUserName = window.localStorage.getItem('userName');
-				if(this.$store.state.user.name ==''){
-						this.$store.commit('GET_USER', {name: getUserName})
-				}
-					return this.$store.state.user;
-				}
-		})
-}	
+  data() {
+    return {
+      titleName: ""
+    };
+  },
+  components: {
+    myHeader,
+    myCanvas,
+    TitleLink
+  },
+  computed: mapState({
+    user() {
+      var getUserName = window.localStorage.getItem("userName");
+      if (this.$store.state.user.name == "") {
+        this.$store.commit("GET_USER", { name: getUserName });
+      }
+      return this.$store.state.user;
+    }
+  })
+};
 </script>
 
 <style>
-@import '../assets/css/reset.css';
-.tac{
-	height: 100%;
-    position: relative;
-    z-index: 100;
+@import "../assets/css/reset.css";
+.tac {
+  height: 100%;
+  position: relative;
+  z-index: 100;
 }
-.ControlPanel ul a{
-	color: #000;
-	text-decoration: none;
+.ControlPanel ul a {
+  color: #000;
+  text-decoration: none;
 }
-.ControlPanel{
-	height: 100%;
-	background: #324157;
-	position: absolute;
-	width: 180px;
-    margin-top: 46px;
+.ControlPanel {
+  height: 100%;
+  background: #324157;
+  position: absolute;
+  width: 180px;
+  margin-top: 46px;
 }
-.mainShow{
-	padding: 2% 2% 2% 2%;
-	margin-top: 46px;
+.mainShow {
+  padding: 2% 2% 2% 2%;
+  margin-top: 46px;
 }
-.showPanel{
-	width:97%;
+.showPanel {
+  width: 97%;
 }
 </style>
